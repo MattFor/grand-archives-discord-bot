@@ -1,6 +1,6 @@
 'use strict'
 
-import Bot from '../main.js'
+import Bot from '../../main.js'
 import Discord from 'discord.js'
 
 import {
@@ -45,13 +45,24 @@ import {
     ENTRANT,
     NEOPHYTE,
 
+    ghostWords,
+    roleMapping,
+    commandSynonyms,
+    serverRanksRanked,
+    entitiesToExecute,
+    spellIncantations,
+    commandsToExecute,
+
     // Bot responses
+    responsesDeny,
+    sageResponses,
     acceptQuestion,
     responsesAccept,
-    responsesDeny,
+    rankChangeMessages,
     duplicateResponses,
-    sageResponses,
+    nicknameChangeLogs,
     sageNoSpellResponses,
+    unknownSpellResponses,
     sageNoArticleResponses,
 
     // Global widely used functions
@@ -62,6 +73,7 @@ import {
     levelUpMessages,
     getRankDescriptor,
     getRandomResponse,
+    setMemberNickname,
     calculateExperience,
 
     // Rarely used functions
@@ -73,10 +85,10 @@ import {
     generateDescription,
     organizeCollectables,
     getRandomResponseAndCheckRoles
-} from '../constants.js'
+} from '../../constants.js'
 
 export default {
-    name: 'spells',
+    name: 'SPELLS',
     /**
      * @param {Bot} client 
      * @param {Discord.Message} message
@@ -98,6 +110,19 @@ export default {
 
             // Iterate over each title under the current rarity
             for (const title of Object.keys(clientSpells[rarity])) {
+                if (JSON.stringify(clientSpells[rarity][title]).includes('undefined')) {
+                    let collectable = null
+                    for (const [key, value] of Object.entries(client.collectables))
+                        if (value.title === title) {
+                            collectable = value
+                            break
+                        }
+                        description += `[${title}](${
+                            client.channels.cache.get(collectable.channel).url
+                        })\n`
+                    continue
+                }
+
                 description += `${title}:\n`;
 
                 // Iterate over each chapter under the current title
@@ -106,11 +131,10 @@ export default {
 
                     // Map each page under the current chapter to its URL and join them with a space
                     const pages = `${clientSpells[rarity][title][chapter].map(page => {
-                        const article = searchArticles(client.collectables, title, chapter, page);
-                        const url = client.channels.cache.get(article.channel).url;
-
-                        return `[${page}](${url})`;
-                    }).join(' ')}\n`;
+                        const article = searchArticles(client.collectables, title, chapter, page)
+                        const channel = client.channels.cache.get(article.channel)
+                        return `[${page}](${channel.url})`
+                    }).join('\n')}\n`
 
                     description += pages;
                 }

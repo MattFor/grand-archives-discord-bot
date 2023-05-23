@@ -1,7 +1,9 @@
 'use strict'
 
-import Bot from '../main.js'
+import fs from 'fs'
+import Bot from '../../main.js'
 import Discord from 'discord.js'
+import beautify from 'json-beautify'
 
 import {
     // Global things related strictly to the server
@@ -45,13 +47,24 @@ import {
     ENTRANT,
     NEOPHYTE,
 
+    ghostWords,
+    roleMapping,
+    commandSynonyms,
+    serverRanksRanked,
+    entitiesToExecute,
+    spellIncantations,
+    commandsToExecute,
+
     // Bot responses
+    responsesDeny,
+    sageResponses,
     acceptQuestion,
     responsesAccept,
-    responsesDeny,
+    rankChangeMessages,
     duplicateResponses,
-    sageResponses,
+    nicknameChangeLogs,
     sageNoSpellResponses,
+    unknownSpellResponses,
     sageNoArticleResponses,
 
     // Global widely used functions
@@ -62,6 +75,7 @@ import {
     levelUpMessages,
     getRankDescriptor,
     getRandomResponse,
+    setMemberNickname,
     calculateExperience,
 
     // Rarely used functions
@@ -73,7 +87,7 @@ import {
     generateDescription,
     organizeCollectables,
     getRandomResponseAndCheckRoles
-} from '../constants.js'
+} from '../../constants.js'
 
 export default {
     name: 'create',
@@ -91,7 +105,7 @@ export default {
         setTimeout(async () => {
             await setPermissions(channel);
             client.collectables[collectable].channel = channel.id;
-            fs.writeFileSync('./collectables.TXT', beautify(client.collectables, null, 2, 80));
+            fs.writeFileSync('./collectables.TXT', beautify(client.collectables, null, 2, 80))
 
             try {
                 await handleContent(channel, collectable, collectable_category);

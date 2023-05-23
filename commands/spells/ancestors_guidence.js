@@ -1,6 +1,6 @@
 'use strict'
 
-import Bot from '../main.js'
+import Bot from '../../main.js'
 import Discord from 'discord.js'
 
 import {
@@ -85,29 +85,30 @@ import {
     generateDescription,
     organizeCollectables,
     getRandomResponseAndCheckRoles
-} from '../constants.js'
+} from '../../constants.js'
+
+const noReplyResponses = [
+    "The spirits of the ancients need a beacon to guide you. Affix their wisdom to a specific point.",
+    "The guidance of the ancients cannot adhere to the void. Attach their wisdom to a certain instance.",
+    "The ancients are wise, but they cannot guide without an anchor. Affix their wisdom to a certain point and they shall guide you.",
+    "Your call to the ancients echoes unanswered. Provide an anchor for their wisdom to take form.",
+    "The wisdom of the ancients remains elusive. Provide a specific point for their guidance to manifest.",
+    "Without an anchor to guide their wisdom, the ancients remain silent. Provide a certain point to hear their voice.",
+    "The ancients are ready to guide, but they need an anchor. Provide it and they shall respond."
+]
 
 export default {
+    name: 'ANCESTORS_GUIDENCE',
     /**
-     * Handle adding a reaction
      * @param {Bot} client 
-     * @param {Discord.ThreadChannel} thread 
+     * @param {Discord.Message} message
      */
-    async run(client, thread) {
-        if (!thread?.parent.id === LABYRINTH_OF_KNOWLEDGE_ID)
-            return
+    async run(client, userDb, message) {
+        if (!message.mentions.repliedUser)
+            return message.reply({ content: noReplyResponses[Math.floor(Math.random() * noReplyResponses.length)] })
+        
+        const repliedTo = await message.channel.messages.fetch(message.reference.messageId)
 
-        const message = await thread.fetchStarterMessage()??null
-
-        if (!message)
-            return
-
-        var userDb = await getUser(message.author.id)
-
-        userDb.postsInLabyrinth += 1
-        userDb.markModified('postsInLabyrinth')
-        await userDb.save()
-
-        info(`Post created by ${message.member} - ${thread.name}.`)
+        repliedTo.pin()
     }
 }

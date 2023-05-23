@@ -1,6 +1,6 @@
 'use strict'
 
-import Bot from '../main.js'
+import Bot from '../../main.js'
 import Discord from 'discord.js'
 
 import {
@@ -45,13 +45,24 @@ import {
     ENTRANT,
     NEOPHYTE,
 
+    ghostWords,
+    roleMapping,
+    commandSynonyms,
+    serverRanksRanked,
+    entitiesToExecute,
+    spellIncantations,
+    commandsToExecute,
+
     // Bot responses
+    responsesDeny,
+    sageResponses,
     acceptQuestion,
     responsesAccept,
-    responsesDeny,
+    rankChangeMessages,
     duplicateResponses,
-    sageResponses,
+    nicknameChangeLogs,
     sageNoSpellResponses,
+    unknownSpellResponses,
     sageNoArticleResponses,
 
     // Global widely used functions
@@ -62,6 +73,7 @@ import {
     levelUpMessages,
     getRankDescriptor,
     getRandomResponse,
+    setMemberNickname,
     calculateExperience,
 
     // Rarely used functions
@@ -73,10 +85,10 @@ import {
     generateDescription,
     organizeCollectables,
     getRandomResponseAndCheckRoles
-} from '../constants.js'
+} from '../../constants.js'
 
 export default {
-    name: 'articles',
+    name: 'ARTICLES',
     /**
      * @param {Bot} client 
      * @param {Discord.Message} message

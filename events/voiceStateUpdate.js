@@ -45,13 +45,24 @@ import {
     ENTRANT,
     NEOPHYTE,
 
+    ghostWords,
+    roleMapping,
+    commandSynonyms,
+    serverRanksRanked,
+    entitiesToExecute,
+    spellIncantations,
+    commandsToExecute,
+
     // Bot responses
+    responsesDeny,
+    sageResponses,
     acceptQuestion,
     responsesAccept,
-    responsesDeny,
+    rankChangeMessages,
     duplicateResponses,
-    sageResponses,
+    nicknameChangeLogs,
     sageNoSpellResponses,
+    unknownSpellResponses,
     sageNoArticleResponses,
 
     // Global widely used functions
@@ -62,12 +73,18 @@ import {
     levelUpMessages,
     getRankDescriptor,
     getRandomResponse,
+    setMemberNickname,
     calculateExperience,
 
     // Rarely used functions
     pickArticles,
+    handleContent,
     searchArticles,
-    organizeCollectables
+    setPermissions,
+    detectRoleInString,
+    generateDescription,
+    organizeCollectables,
+    getRandomResponseAndCheckRoles
 } from '../constants.js'
 
 export default {

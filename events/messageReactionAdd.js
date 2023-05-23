@@ -48,19 +48,21 @@ import {
     ghostWords,
     roleMapping,
     commandSynonyms,
+    serverRanksRanked,
     entitiesToExecute,
     spellIncantations,
     commandsToExecute,
 
     // Bot responses
+    responsesDeny,
+    sageResponses,
     acceptQuestion,
     responsesAccept,
-    responsesDeny,
     rankChangeMessages,
     duplicateResponses,
-    sageResponses,
     nicknameChangeLogs,
     sageNoSpellResponses,
+    unknownSpellResponses,
     sageNoArticleResponses,
 
     // Global widely used functions
@@ -168,6 +170,21 @@ export default {
             }
         // Article channel
         } else if ([ARTICLES, SPELLS].includes(reaction.message.channel?.parent.id)) {
+            const hasWax = member.roles.cache.has(WAXHEAD)
+            if (hasWax && !!client.activeUsers[user.id])
+                client.activeUsers[user.id][0]++
+
+            if (!!client.activeUsers[user.id] && client.activeUsers[user.id][0] >= client.activeUsers[user.id][1] && hasWax)
+                return setTimeout(() => {
+                    // Remove the waxhead role.
+                    member.roles.remove(message.guild.roles.cache.get(WAXHEAD)).catch(null)
+                    try {
+                        member.roles.remove(message.guild.roles.cache.get(NEOPHYTE)).catch(null)
+                    } catch {}
+                    // Remove the user from the collection.
+                    client.activeUsers.delete(user.id)
+                }, 10 * 1000)
+
             var userDb = await getUser(user.id)
 
             const collectableClass = reaction.message.channel?.parent.id === ARTICLES ? 
@@ -179,7 +196,9 @@ export default {
 
             const collectable = client.collectables[message.channel.name]
 
-            var userDb = await getUser(user.id)
+            if (userDb.collectablesDenied.includes(message.channel.name))
+                return //TODO
+
             userDb.experience += (Math.floor(Math.random() * (30 - 10 + 1)) + 10) * collectable.rarity
             userDb.markModified('experience')
 
@@ -187,15 +206,19 @@ export default {
             'spellsCollected' : 'articlesCollected'
 
             if (userDb[typeToSave].includes(message.channel.name)) {
+                await userDb.save()
                 const response = getRandomResponse(duplicateResponses[collectableClass])
                 return await message.channel.send({ content: response.replaceAll('USER', user).replaceAll('RANK', getRankDescriptor(getMemberRank(member), response.startsWith('RANK'))) })
                 .then(m => setTimeout(() => m.delete(), 60 * 1000))
             }
 
-            var chosenUserDb = await getUser(user.id)
-            chosenUserDb.experience += (Math.floor(Math.random() * (30 - 10 + 1)) + 10) * (Math.random() * (Number(`${Date.now()}`.slice(-1)) + 1)) + Math.random()
-            chosenUserDb.markModified('experience')
-            await chosenUserDb.save()
+            if (collectable.acquirable) {
+                userDb.sorceriesCollected.push(message.channel.name.replace(/-/g, "_").toUpperCase())
+                userDb.markModified('sorceriesCollected')
+            }
+
+            userDb.experience += (Math.floor(Math.random() * (30 - 10 + 1)) + 10) * (Math.random() * (Number(`${Date.now()}`.slice(-1)) + 1)) + Math.random()
+            userDb.markModified('experience')
 
             switch(reaction.emoji.name) {
                 case '✅': {

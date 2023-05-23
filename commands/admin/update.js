@@ -1,6 +1,6 @@
 'use strict'
 
-import Bot from '../main.js'
+import Bot from '../../main.js'
 import Discord from 'discord.js'
 
 import {
@@ -45,13 +45,24 @@ import {
     ENTRANT,
     NEOPHYTE,
 
+    ghostWords,
+    roleMapping,
+    commandSynonyms,
+    serverRanksRanked,
+    entitiesToExecute,
+    spellIncantations,
+    commandsToExecute,
+
     // Bot responses
+    responsesDeny,
+    sageResponses,
     acceptQuestion,
     responsesAccept,
-    responsesDeny,
+    rankChangeMessages,
     duplicateResponses,
-    sageResponses,
+    nicknameChangeLogs,
     sageNoSpellResponses,
+    unknownSpellResponses,
     sageNoArticleResponses,
 
     // Global widely used functions
@@ -62,6 +73,7 @@ import {
     levelUpMessages,
     getRankDescriptor,
     getRandomResponse,
+    setMemberNickname,
     calculateExperience,
 
     // Rarely used functions
@@ -73,15 +85,23 @@ import {
     generateDescription,
     organizeCollectables,
     getRandomResponseAndCheckRoles
-} from '../constants.js'
+} from '../../constants.js'
 
 export default {
-    name: 'articles_disciple',
-    /**
-     * @param {Bot} client 
-     * @param {Discord.Message} message
-     */
-    async run(client, userDb, message) {
-        
+    name: 'update',
+    async run(client, channel) {
+        await setPermissions(channel);
+
+        const toDelete = await channel.messages.fetch({ limit: 10 });
+        toDelete.forEach(async m => await m.delete());
+        info(`Updating ${channel.name}`);
+
+        setTimeout(async () => {
+            try {
+                await handleContent(channel, collectable, collectable_category);
+            } catch (error) {
+                console.error(error);
+            }
+        }, 5000);
     }
 }

@@ -1,14 +1,26 @@
 'use strict'
 
+import fs from 'fs'
 import chalk from 'chalk'
 import timeStamp from 'time-stamp'
-
+import Discord from 'discord.js'
 import getUser from './database.js'
 
 
 const TOKEN = 'Nzc2MDUxMzUwNjY0NTExNDg5.GsLN7z.qiT2KBu0TqpDAdRPOCNPUa37w9tYohy5RibDRw'
 
 const serverRanks = ["Entrant", "Acolyte", "Scholar", "Archivist", "Magus", "Lorekeeper", "Grand Librarian", "Sage", "Crystal Sage"];
+const serverRanksRanked = {
+    "Entrant": 0, 
+    "Acolyte": 1, 
+    "Scholar": 2, 
+    "Archivist": 3, 
+    "Magus": 3, 
+    "Lorekeeper": 4, 
+    "Grand Librarian": 4, 
+    "Sage": 5, 
+    "Crystal Sage": 10000
+}
 
 const SPELL_RARITIES = {
     1: 'Novice Incantations',
@@ -65,13 +77,13 @@ const sageNoArticleResponses = [
     "This RANK is yet to add to their library of knowledge. In due time, they will collect their first scroll."
 ]
 
-const acceptQuestion = {
-    0: "RANK, thou hast reached the conclusion of this ancient manuscript. Wouldst thou keep this sacred knowledge close to thy heart? Respond with ✅ to collect or ❌ to return this script to the shadows.",
-    1: "RANK, thou art at the end of this arcane script. Dost thou yearn to hold onto this wisdom from yesteryears? React with ✅ to preserve it within thy collection or ❌ to let it slip into the forgotten mists of time.",
-    2: "RANK, thou hast traversed the winding path of this ancient knowledge. Doth the desire to claim this scripture as thine own burn within thee? Mark with ✅ to keep the scripture or ❌ to return it to the quiet solitude of the archive.",
-    3: "RANK, thou standest at the threshold of acquisition. Art thou ready to embrace this manuscript and its ancient wisdom? Affirm thy decision with ✅ to take it into thy care, or ❌ to abandon it to its silent rest.",
-    4: "RANK, thou hast arrived at the conclusion of this historical document. Does thy scholarly spirit compel thee to seize this wisdom of old? Signal with ✅ to hold it in thy collection or ❌ to relinquish it to the annals of time."
-}
+const acceptQuestion = [
+    "RANK, thou hast reached the conclusion of this ancient manuscript. Wouldst thou keep this sacred knowledge close to thy heart? Respond with ✅ to collect or ❌ to return this script to the shadows.",
+    "RANK, thou art at the end of this arcane script. Dost thou yearn to hold onto this wisdom from yesteryears? React with ✅ to preserve it within thy collection or ❌ to let it slip into the forgotten mists of time.",
+    "RANK, thou hast traversed the winding path of this ancient knowledge. Doth the desire to claim this scripture as thine own burn within thee? Mark with ✅ to keep the scripture or ❌ to return it to the quiet solitude of the archive.",
+    "RANK, thou standest at the threshold of acquisition. Art thou ready to embrace this manuscript and its ancient wisdom? Affirm thy decision with ✅ to take it into thy care, or ❌ to abandon it to its silent rest.",
+    "RANK, thou hast arrived at the conclusion of this historical document. Does thy scholarly spirit compel thee to seize this wisdom of old? Signal with ✅ to hold it in thy collection or ❌ to relinquish it to the annals of time."
+]
 
 const responsesAccept = {
     'article': [
@@ -278,6 +290,8 @@ const entitiesToExecute = [
     'wraith'
 ]
 
+const neutralReplacements = ['Wise one', 'Seeker', 'Reader', 'Traveler', 'Explorer'];
+
 const commandSynonyms = {
     SPELLS: ['spell', 'charm', 'incantation', 'hex', 'enchantment', 'ritual', 'sorcery'],
     EXPERIENCE: ['exp', 'experience', 'knowledge', 'learnings', 'wisdom', 'insight', 'comprehension', 'understanding'],
@@ -291,7 +305,8 @@ const commandSynonyms = {
     ORACLES_VISION: ['oracle', 'vision', 'divination', 'prophesy', 'foresee', 'future sight'],
     CHRONOS_GRASP: ['chronos', 'grasp', 'time hold', 'temporal grip', 'time control'],
     ECHO_OF_THE_ANCIENTS: ['echo', 'ancients', 'ancient echo', 'ancient voice', 'old whisper'],
-    CHANNEL_GLIMPSE: ['channel', 'glimpse', 'quick look', 'peek', 'brief view']
+    CHANNEL_GLIMPSE: ['channel', 'glimpse', 'quick look', 'peek', 'brief view'],
+    ANCESTORS_GUIDENCE: ['ancestors', 'guidance', 'lineage', 'heritage', 'wisdom', 'elder insight', 'past echo', 'forebears', 'kindred', 'legacy']
 }
 
 const rankChangeMessages = [
@@ -367,6 +382,13 @@ const unknownSpellResponses = {
         "You open your mind, but see nothing. The Channel Glimpse is unknown.....",
         "You seek a brief view of the unseen, but find only the visible. The Channel Glimpse eludes you....",
         "Your sight is restricted to the present. The Channel Glimpse is not yet within your reach...."
+    ], ANCESTORS_GUIDENCE: [
+        "You yearn for the whispers of the past, but silence greets you. Ancestor's Guidance remains elusive....",
+        "You reach into the well of time, yet find it empty. The Ancestor's Guidance does not reveal itself....",
+        "You listen for the echoes of wisdom, but hear only the wind. The Ancestor's Guidance is not yet within your grasp....",
+        "Your spirit calls out for the voices of the forebears, but they offer no response. The Ancestor's Guidance remains shrouded...",
+        "You cast your senses into the ancient tapestry of time, yet it remains inscrutable. Ancestor's Guidance continues to baffle you...",
+        "You strain your ears towards the echoes of bygone ages, but they remain silent. The Ancestor's Guidance is yet to grace your path..."
     ]
 };
 
@@ -438,9 +460,8 @@ async function setMemberNickname(member, rank) {
         nickname = nickname.replace('{adj}', adj);
 
         // Limit the length to fit Discord's nickname length limit (32 characters)
-        if (nickname.length > 32) {
-            nickname = nickname.substring(0, 29) + '...';
-        }
+        if (nickname.length > 32)
+            nickname = nickname.substring(0, 29) + '...'
 
         await member.setNickname(nickname);
         info(`${member.user.username} is now ${nickname}`)
@@ -618,13 +639,13 @@ function calculateExperience(user) {
 
 const rankConditions = [
     {rank: "Entrant", condition: (exp) => exp.total < 200},
-    {rank: "Acolyte", condition: (exp) => exp.total < 1000},
-    {rank: "Scholar", condition: (exp) => exp.postsInLabyrinth > exp.spellsCollected && exp.total < 2500},
-    {rank: "Archivist", condition: (exp) => exp.postsInLabyrinth > exp.spellsCollected && exp.total < 5500},
-    {rank: "Magus", condition: (exp) => exp.spellsCollected > exp.postsInLabyrinth && exp.total < 5500},
-    {rank: "Lorekeeper", condition: (exp) => exp.postsInLabyrinth > exp.spellsCollected && exp.total < 10000},
-    {rank: "Grand Librarian", condition: (exp) => exp.spellsCollected > exp.postsInLabyrinth && exp.total < 10000},
-    {rank: "Sage", condition: (exp) => true}
+    {rank: "Acolyte", condition: (exp) => exp.total > 200 && exp.total < 1000},
+    {rank: "Scholar", condition: (exp) => exp.postsInLabyrinth > exp.spellsCollected && exp.total > 1000 && exp.total < 2500},
+    {rank: "Archivist", condition: (exp) => exp.postsInLabyrinth > exp.spellsCollected && exp.total > 2500 && exp.total < 5500},
+    {rank: "Magus", condition: (exp) => exp.spellsCollected > exp.postsInLabyrinth && exp.total > 2500 && exp.total < 5500},
+    {rank: "Lorekeeper", condition: (exp) => exp.postsInLabyrinth > exp.spellsCollected && exp.total > 5500 && exp.total < 10000},
+    {rank: "Grand Librarian", condition: (exp) => exp.spellsCollected > exp.postsInLabyrinth && exp.total > 5500 && exp.total < 10000},
+    {rank: "Sage", condition: (exp) => exp.total > 12500}
 ]
 
 function determineRank(user) {
@@ -647,7 +668,7 @@ function getRankDescriptor(rank, capitalize) {
 
 function getMemberRank(guildMember) {
   // Loop through the roles of the GuildMember
-    for (let [roleID, role] of guildMember.roles.cache) 
+    for (let [roleID, role] of guildMember.roles.cache.filter(r => r.id !== NEOPHYTE && r.id !== WAXHEAD && r.id !== guildMember.guild.roles.everyone.id)) 
         // If the role name is in the serverRanks array, return it
         if (serverRanks.includes(role.name))
             return role.name
@@ -711,11 +732,15 @@ async function setPermissions(channel) {
     }]).catch(e => console.log(e));
 }
 
+function replaceRank(message, replacements) {
+    return message.replace('RANK', replacements[Math.floor(Math.random() * replacements.length)])
+}
+
 async function handleContent(channel, collectable, collectable_category) {
     const maxMessageLength = 2000;
     let content = `${fs.readFileSync(`./${
         collectable_category === 'spell' ? 'spells' : 'articles'
-    }/${collectable}.TXT`).toString()}\n\n${acceptQuestion[Math.floor(Math.random() * 5)]}`;
+    }/${collectable}.TXT`).toString()}\n\n${replaceRank(acceptQuestion[Math.floor(Math.random() * 5)], neutralReplacements)}`;
 
     while (content.length > 0) {
         if (content.length <= maxMessageLength) {
@@ -758,12 +783,12 @@ function generateDescription(clientCollectables, userDb, isSpell) {
             for (const chapter of Object.keys(clientItems[rarity][title])) {
                 description += `Chapter ${chapter}\n`;
 
-                const pages = clientItems[rarity][title][chapter].map(page => {
+                const pages = `${clientItems[rarity][title][chapter].map(page => {
                     const article = searchArticles(client.collectables, title, chapter, page);
                     const url = client.channels.cache.get(article.channel).url;
 
                     return `[${page}](${url})`;
-                }).join(' ');
+                }).join(' ')}\n`;
 
                 description += pages;
             }
@@ -818,6 +843,7 @@ export {
     ghostWords,
     roleMapping,
     commandSynonyms,
+    serverRanksRanked,
     entitiesToExecute,
     spellIncantations,
     commandsToExecute,

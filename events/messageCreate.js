@@ -51,6 +51,7 @@ import {
     ghostWords,
     roleMapping,
     commandSynonyms,
+    serverRanksRanked,
     entitiesToExecute,
     spellIncantations,
     commandsToExecute,
@@ -95,6 +96,9 @@ export default {
      * @param {Discord.Message} message
      */
     async run(client, message) {
+        if (message.author.id === client.user.id)
+            return
+
         const lowerCaseMessage = message.content.toLowerCase();
 
         if (!message.author.bot) {
@@ -105,7 +109,9 @@ export default {
         }
 
         // Create article / spell.
-        if (message.author.id === OWNER) {
+        if (message.author.id === OWNER && !lowerCaseMessage.includes('.') && 
+            !(message.channel.type === Discord.ChannelType.DM ||
+            message.channel.type === Discord.ChannelType.GroupDM)) {
             const disciple = message.mentions.members.first()
             if (disciple && !message.mentions.repliedUser) {
                 var userDb = await getUser(disciple.user.id)
@@ -245,7 +251,7 @@ export default {
         
         // If no command was found, default to 'ARTICLES'
         commandName = commandName ?? null
-
+        
         if (!commandName)
             return
 
@@ -254,13 +260,25 @@ export default {
         if (!['SPELLS', 'EXPERIENCE', 'ARTICLES'].includes(commandName) && !userDb.sorceriesCollected.includes(commandName))
             return message.reply({ content: getRandomResponse(unknownSpellResponses[commandName]) })
             
-        switch (commandName) {
-            case 'SPELLS':
-                return client.spells.get('spells').run(client, userDb, message);
-            case 'EXPERIENCE':
-                return; // Perhaps handle this case or remove it if it's not used
-            case 'ARTICLES':
-                return client.spells.get('articles').run(client, userDb, message);
-        }
+        const command = client.spells.get(commandName)
+
+        const unavailableDMSpellResponses = [
+            "Your spell fades before it can take hold... The privacy of this realm stifles its magic.",
+            "Your incantation resonates momentarily, then dissipates... Its magic is not meant for this secluded space.",
+            "The echoes of your spell fizzle into silence... The power can't be fully harnessed here, in our private discussion.",
+            "Your spell swirls then slowly fades... Its might is diminished in this intimate sphere.",
+            "Your conjuration seems to lose its essence... The potency of this magic requires a larger audience.",
+            "The enchantment loses its power, echoing weakly... Its energy isn't meant for this solitary realm.",
+            "The force of your spell unravels in the quiet... Its magic needs a grander stage.",
+            "Your spell's aura seems muted, as if muffled... The strength of this sorcery is lost within our secluded dialogue.",
+            "The magic of your spell seems to retreat... This sacred power needs the presence of more souls."
+        ]
+
+        if ((message.channel.type === Discord.ChannelType.DM ||
+            message.channel.type === Discord.ChannelType.GroupDM) && 
+            (command.dm === null || command.dm === undefined))
+            return message.reply({ content: getRandomResponse(unavailableDMSpellResponses) })
+
+        return command.run(client, userDb, message)
     }
 }

@@ -48,6 +48,7 @@ import {
     ghostWords,
     roleMapping,
     commandSynonyms,
+    serverRanksRanked,
     entitiesToExecute,
     spellIncantations,
     commandsToExecute,
@@ -93,7 +94,14 @@ export default {
      * @param {discord.GuildMember} newMember 
      */
     async run(client, oldMember, newMember) {
-        if (!oldMember.roles.cache.equals(newMember.roles.cache) && 
+        if (!oldMember.roles.cache.filter(r => 
+                r.id !== NEOPHYTE && 
+                r.id !== WAXHEAD && 
+                r.id !== newMember.guild.roles.everyone.id)
+            .equals(newMember.roles.cache.filter(r => 
+                r.id !== NEOPHYTE && 
+                r.id !== WAXHEAD &&     
+                r.id !== newMember.guild.roles.everyone.id)) && 
             !newMember.user.bot && 
             oldMember.roles.cache.first() !== newMember.roles.cache.first())
     
@@ -105,11 +113,5 @@ export default {
             response = response.replaceAll('USER', `**${newMember.user.username}**`).replaceAll('NICKNAME', `**${newMember.nickname}**`)
             client.channels.cache.get(LOGS_CHANNEL_ID).send({ content: response }) 
         }, 3500)
-
-        console.log(!oldMember.roles.cache.equals(newMember.roles.cache), 
-        !newMember.user.bot, 
-        oldMember.roles.cache.first() !== newMember.roles.cache.first(), !oldMember.roles.cache.equals(newMember.roles.cache) && 
-        !newMember.user.bot && 
-        oldMember.roles.cache.first() !== newMember.roles.cache.first())
     }
 }

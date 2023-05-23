@@ -84,7 +84,7 @@
     "acquirable": true,
     "rarity": 6,
     "wax": false,
-    "channel": "1109637419919224842",
+    "channel": "1109621596840276078",
     "title": "Ancestor's Guidence",
     "description": "You have stumbled upon a sacred sorcery, learn and practice its usage here."
   }
