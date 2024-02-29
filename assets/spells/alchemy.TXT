@@ -1,0 +1,13 @@
+# Transmutative Alchemy
+
+A conduit of transformation, it allows the latent potential within the emblems of expression, our emojis, to unfurl into unique amalgamations, breathing new life into familiar symbols.
+
+To invoke the power of **Transmutative Alchemy**, thou must select two distinct emojis, each holding a part of the essence thou wish to see within your creation. Each emoji, serving as a component, will contribute to the manifestation of a new, synthesized emblem.
+
+To conjure the transmutation, thou need only to indicate the chosen emojis. However, the invocation must be cast in the right manner. The key lies in words of change, transformation, and fusion - each preceded by an incantation to summon the spell. An example may resonate as "I invoke the power of alchemy upon (emojis)" or perhaps "Unleash the power of transmutation upon (emojis)".
+
+As thou utter these phrases, the chosen emojis shall be engulfed in a mystical aura, their essences intertwining to form a unique emblem, a testament to your mastery over the art of alchemy.
+
+Yet heed this admonition, to invoke alchemy without specifying the emojis to transmute is akin to shaping the air. The transformative magic needs elements to act upon and cannot conjure from the void. urther, attempting the alchemical process with non-unicode emojis or more than two elements would lead to an imbalance in the mystical energies, rendering the spell ineffective.
+
+Step forth with curiosity and let the art of alchemy transfigure your expressions.

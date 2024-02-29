@@ -1,108 +1,24 @@
-'use strict'
+"use strict";
 
-import Bot from '../main.js'
-import discord from 'discord.js'
-
-import {
-    // Global things related strictly to the server
-    TOKEN,
-    OWNER,
-    GUILD,
-    CHANNEL,
-
-    // Rarities
-    SPELL_RARITIES,
-    ARTICLE_RARITIES,
-
-    // Embed colors
-    GHOST_BLUE,
-    BOOK_CREAM,
-
-    // Special channel ids
-    LOGS_CHANNEL_ID,
-    WAXHEAD_CHANNEL_ID,
-    SPELLS_SPECIAL_CHANNEL_ID,
-    LABYRINTH_OF_KNOWLEDGE_ID,
-    ARTICLES_SPECIAL_CHANNEL_ID,
-
-    // Special category ids
-    SPELLS,
-    ARTICLES,
-    SAGE_ONLY_CATEGORY,
-
-    // Special message ids
-    WAXHEAD_MESSGE_ID,
-
-    // Role ids
-    SAGE,
-    WAXHEAD,
-    GRAND_LIBRARIAN,
-    LOREKEEPER,
-    MAGUS,
-    ARCHIVIST,
-    SCHOLAR,
-    ACOLYTE,
-    ENTRANT,
-    NEOPHYTE,
-
-    ghostWords,
-    roleMapping,
-    commandSynonyms,
-    serverRanksRanked,
-    entitiesToExecute,
-    spellIncantations,
-    commandsToExecute,
-
-    // Bot responses
-    responsesDeny,
-    sageResponses,
-    acceptQuestion,
-    responsesAccept,
-    rankChangeMessages,
-    duplicateResponses,
-    nicknameChangeLogs,
-    sageNoSpellResponses,
-    unknownSpellResponses,
-    sageNoArticleResponses,
-
-    // Global widely used functions
-    info,
-    getUser,
-    determineRank,
-    getMemberRank,
-    levelUpMessages,
-    getRankDescriptor,
-    getRandomResponse,
-    setMemberNickname,
-    calculateExperience,
-
-    // Rarely used functions
-    pickArticles,
-    handleContent,
-    searchArticles,
-    setPermissions,
-    detectRoleInString,
-    generateDescription,
-    organizeCollectables,
-    getRandomResponseAndCheckRoles
-} from '../constants.js'
+import discord from "discord.js";
+import GrandArchivist from "../src/GrandArchivist.js";
 
 export default {
     /**
-     * @param {Bot} client 
+     * @param {GrandArchivist} bot 
      * @param {discord.GuildMember} oldMember 
      * @param {discord.GuildMember} newMember 
      */
-    async run(client, oldMember, newMember) {
+    async run(bot, oldMember, newMember) {
         if (
             // Old roles do not equal new roles
             !oldMember.roles.cache.filter(r => 
-                r.id !== NEOPHYTE && 
-                r.id !== WAXHEAD && 
+                r.id !== bot.constants.NEOPHYTE && 
+                r.id !== bot.constants.WAXHEAD && 
                 r.id !== newMember.guild.roles.everyone.id)
             .equals(newMember.roles.cache.filter(r => 
-                r.id !== NEOPHYTE && 
-                r.id !== WAXHEAD &&     
+                r.id !== bot.constants.NEOPHYTE && 
+                r.id !== bot.constants.WAXHEAD &&     
                 r.id !== newMember.guild.roles.everyone.id)) && 
 
             // User is not a bot + previous
@@ -116,12 +32,11 @@ export default {
         )
 
         setTimeout(async () => {
-            const rank = newMember.roles.cache.first()
-
-            let response = getRandomResponse(nicknameChangeLogs)
-            await setMemberNickname(newMember, rank.name)
-            response = response.replaceAll('USER', `**${newMember.user.username}**`).replaceAll('NICKNAME', `**${newMember.nickname}**`)
-            client.channels.cache.get(LOGS_CHANNEL_ID).send({ content: response }) 
-        }, 3500)
+            const rank = newMember.roles.cache.first();
+            let response = bot.constants.getRandomResponse(bot.constants.nicknameChangeLogs);
+            await bot.constants.setMemberNickname(newMember, rank.name);
+            response = response.replaceAll("USER", `**${newMember.user.username}**`).replaceAll("NICKNAME", `**${newMember.nickname}**`);
+            bot.channels.cache.get(bot.constants.LOGS_CHANNEL_ID).send({ content: response }); 
+        }, 3500);
     }
 }

@@ -1,13 +1,12 @@
-'use strict'
+"use strict";
 
-import fs from 'fs'
-import chalk from 'chalk'
-import timeStamp from 'time-stamp'
-import Discord from 'discord.js'
-import getUser from './database.js'
+import fs from "fs";
+import chalk from "chalk";
+import Discord from "discord.js";
+import timeStamp from "time-stamp";
+import getUser from "./src/Database/Main.js";
 
-
-const TOKEN = 'Nzc2MDUxMzUwNjY0NTExNDg5.GsLN7z.qiT2KBu0TqpDAdRPOCNPUa37w9tYohy5RibDRw'
+const TOKEN = "Nzc2MDUxMzUwNjY0NTExNDg5.GsLN7z.qiT2KBu0TqpDAdRPOCNPUa37w9tYohy5RibDRw"
 
 const serverRanks = ["Entrant", "Acolyte", "Scholar", "Archivist", "Magus", "Lorekeeper", "Grand Librarian", "Sage", "Archmage of Crystalline Arts"];
 const serverRanksRanked = {
@@ -23,29 +22,29 @@ const serverRanksRanked = {
 }
 
 const SPELL_RARITIES = {
-    1: 'Novice Incantations',
-    2: 'Adept Enchantments',
-    3: 'Scholarly Invocations',
-    4: 'Arcane Emanations',
-    5: 'Mystic Resonances',
-    6: 'Ethereal Conjurings',
-    7: 'Celestial Rites',
-    8: 'Enigmatic Orisons',
-    9: 'Crystal Scrolls',
-    10: 'Archsage\'s Arcana'
+    1: "Novice Incantations",
+    2: "Adept Enchantments",
+    3: "Scholarly Invocations",
+    4: "Arcane Emanations",
+    5: "Mystic Resonances",
+    6: "Ethereal Conjurings",
+    7: "Celestial Rites",
+    8: "Enigmatic Orisons",
+    9: "Crystal Scrolls",
+    10: "Archsage's Arcana"
 }
 
 const ARTICLE_RARITIES = {
-    1: 'Common Scrolls',
-    2: 'Uncommon Manuscripts',
-    3: 'Rare Grimoires',
-    4: 'Legendary Codices',
-    5: 'Mythic Tomes',
-    6: 'Celestial Scrolls',
-    7: 'Mystical Parchments',
-    8: 'Prophetic Vellums',
-    9: 'Illuminated Scriptures',
-    10: 'Archsage\'s Epistles'
+    1: "Common Scrolls",
+    2: "Uncommon Manuscripts",
+    3: "Rare Grimoires",
+    4: "Legendary Codices",
+    5: "Mythic Tomes",
+    6: "Celestial Scrolls",
+    7: "Mystical Parchments",
+    8: "Prophetic Vellums",
+    9: "Illuminated Scriptures",
+    10: "Archsage's Epistles"
 }
 
 const sageResponses = [
@@ -86,14 +85,14 @@ const acceptQuestion = [
 ]
 
 const responsesAccept = {
-    'article': [
+    "article": [
         "USER, thou hast obtained a valuable manuscript, a wealth of knowledge now belongs to thee.",
         "An article, full of wisdom, has been collected. May it illuminate thy path, USER.",
         "A new scroll to enrich thy collection! USER, may its knowledge prove useful.",
         "Excellent USER! Thou hast acquired an ancient scripture. Its wisdom now lies within thy grasp.",
         "A new tome for thy library. USER, may its words guide thee to greater understanding."
     ],
-    'spell': [
+    "spell": [
         "USER, thou hast discovered a new incantation! Use it wisely.",
         "A new spell is added to thy repertoire, USER. Thou growest stronger.",
         "Excellent! A scholar such as thee needs more spells to expand thy knowledge.",
@@ -116,14 +115,14 @@ const responsesDeny = [
 ]
 
 const duplicateResponses = {
-    'spell': [
+    "spell": [
         "USER, thou already possess this spell. Twice the knowledge, but the power remains the same.",
         "This incantation is already part of thy repertoire, USER. Seek thee new knowledge.",
         "Thou art trying to collect a spell thou already knowest, USER. Tis a sign of thy wisdom, indeed.",
         "Haste not, thou already possessest this spell. USER, seeketh thee new mysteries to uncover.",
         "This magic is already with thee, USER. Mayhaps thou should seek different spells."
     ],
-    'article': [
+    "article": [
         "USER, this article already resides within thy collection. Seek thee new knowledge.",
         "USER, thou seemest to have already collected this manuscript. Mayhaps another will enrich thy knowledge.",
         "USER, this ancient text is already part of thy wisdom. Seek thou new scrolls to learn from.",
@@ -164,7 +163,7 @@ const levelUpTexts = {
         `Mark this day, as USERNAME, our diligent Acolyte, strides forward to claim the title of NEWRANK.`,
         `Praise be to USERNAME, for their time as an Acolyte has culminated in their ascension to the rank of NEWRANK.`,
         `From the humble beginnings of an Acolyte, USERNAME has risen to the prestigious role of a NEWRANK.`,
-        `We celebrate USERNAME's transition from Acolyte, as they embrace their new identity as a NEWRANK.`
+        `We celebrate USERNAME"s transition from Acolyte, as they embrace their new identity as a NEWRANK.`
     ],
     "Scholar": [
         `From the realm of Scholars, USERNAME has emerged, now bearing the distinguished title of NEWRANK.`,
@@ -191,11 +190,11 @@ const levelUpTexts = {
         `Praise the spirits, for our fellow Lorekeeper, USERNAME, now dons the honorable mantle of a NEWRANK.`,
         `From Lorekeeper to NEWRANK, we recognize the grand journey of USERNAME in their pursuit of wisdom.`,
         `With steadfast dedication, USERNAME transitions from Lorekeeper to the esteemed rank of NEWRANK.`,
-        `Bear witness to USERNAME's ascension, as they transition from their role as Lorekeeper to the high honor of NEWRANK.`,
-        `In the annals of our records, USERNAME's name shines bright, as they transform from Lorekeeper to NEWRANK.`
+        `Bear witness to USERNAME"s ascension, as they transition from their role as Lorekeeper to the high honor of NEWRANK.`,
+        `In the annals of our records, USERNAME"s name shines bright, as they transform from Lorekeeper to NEWRANK.`
     ],
     "Grand Librarian": [
-        `By the spirits' guidance, USERNAME, our revered Grand Librarian, has ascended to the rank of NEWRANK.`,
+        `By the spirits" guidance, USERNAME, our revered Grand Librarian, has ascended to the rank of NEWRANK.`,
         `From the shelves of the Grand Librarian, USERNAME steps forth, donning their new title as a NEWRANK.`,
         `In recognition of their wisdom, USERNAME, our Grand Librarian, is bestowed the grand title of NEWRANK.`,
         `We salute USERNAME, who ascends from the position of Grand Librarian to the exalted role of a NEWRANK.`,
@@ -226,125 +225,125 @@ const nicknameChangeLogs = [
 ]
 
 const commandsToExecute = [
-    'can i see', 
-    'may i see', 
-    'show me', 
-    'reveal', 
-    'give me', 
-    'display', 
-    'present', 
-    'bring forth', 
-    'unveil', 
-    'demonstrate', 
-    'expose', 
-    'can you find', 
-    'can you show', 
-    'may you show', 
-    'let me see', 
-    'allow me to see', 
-    'i wish to see', 
-    'i want to see', 
-    'i desire to see', 
-    'i would like to see', 
-    'could you present', 
-    'could i view', 
-    'i would love to see', 
-    'let\'s see', 
-    'might i see', 
-    'offer a view of', 
-    'provide a glimpse of', 
-    'disclose', 
-    'make visible', 
-    'manifest'
+    "can i see", 
+    "may i see", 
+    "show me", 
+    "reveal", 
+    "give me", 
+    "display", 
+    "present", 
+    "bring forth", 
+    "unveil", 
+    "demonstrate", 
+    "expose", 
+    "can you find", 
+    "can you show", 
+    "may you show", 
+    "let me see", 
+    "allow me to see", 
+    "i wish to see", 
+    "i want to see", 
+    "i desire to see", 
+    "i would like to see", 
+    "could you present", 
+    "could i view", 
+    "i would love to see", 
+    "let's see", 
+    "might i see", 
+    "offer a view of", 
+    "provide a glimpse of", 
+    "disclose", 
+    "make visible", 
+    "manifest"
 ]
 
 const spellIncantations = [
-    'i invoke',
-    'by the power of',
-    'unleash',
-    'cast',
-    'i call upon',
-    'bring forth',
-    'awaken',
-    'i conjure',
-    'i summon',
-    'harness',
-    'let us witness',
-    'evoke',
-    'channel',
-    'i beseech',
-    'manifest',
-    'i command',
-    'awake, oh',
-    'unbind',
-    'i draw from',
-    'rise, oh',
-    'i ask for',
-    'grant me',
-    'activate',
-    'release',
-    'i enact',
-    'unfold, oh',
-    'i request',
-    'trigger',
-    'by the wisdom of',
-    'by the sight of',
-    'by the hand of',
-    'by the voice of',
-    'by the echoes of',
-    'by the grasp of',
-    'by the light of',
-    'by the will of',
-    'by the shadows of',
-    'by the rifts of',
-    'by the conflict of',
-    'by the vision of',
-    'by the touch of',
-    'by the whisper of',
-    'by the glimpse of',
-    'by the legacy of',
-    'ignite',
-    'initiate',
-    'stir',
-    'provoke',
-    'incite',
-    'conjure the essence of',
-    'bring about',
-    'call forth the power of',
-    'in the name of',
-    'by the ancient rites of',
-    'by the cryptic codes of'
+    "i invoke",
+    "by the power of",
+    "unleash",
+    "cast",
+    "i call upon",
+    "bring forth",
+    "awaken",
+    "i conjure",
+    "i summon",
+    "harness",
+    "let us witness",
+    "evoke",
+    "channel",
+    "i beseech",
+    "manifest",
+    "i command",
+    "awake, oh",
+    "unbind",
+    "i draw from",
+    "rise, oh",
+    "i ask for",
+    "grant me",
+    "activate",
+    "release",
+    "i enact",
+    "unfold, oh",
+    "i request",
+    "trigger",
+    "by the wisdom of",
+    "by the sight of",
+    "by the hand of",
+    "by the voice of",
+    "by the echoes of",
+    "by the grasp of",
+    "by the light of",
+    "by the will of",
+    "by the shadows of",
+    "by the rifts of",
+    "by the conflict of",
+    "by the vision of",
+    "by the touch of",
+    "by the whisper of",
+    "by the glimpse of",
+    "by the legacy of",
+    "ignite",
+    "initiate",
+    "stir",
+    "provoke",
+    "incite",
+    "conjure the essence of",
+    "bring about",
+    "call forth the power of",
+    "in the name of",
+    "by the ancient rites of",
+    "by the cryptic codes of"
 ]
 
 const entitiesToExecute = [
-    'spirit', 
-    'ghost', 
-    'spectre', 
-    'whisper', 
-    'phantom', 
-    'apparition', 
-    'shade', 
-    'wraith'
+    "spirit", 
+    "ghost", 
+    "spectre", 
+    "whisper", 
+    "phantom", 
+    "apparition", 
+    "shade", 
+    "wraith"
 ]
 
-const neutralReplacements = ['Wise one', 'Seeker', 'Reader', 'Traveler', 'Explorer'];
+const neutralReplacements = ["Wise one", "Seeker", "Reader", "Traveler", "Explorer"];
 
 const commandSynonyms = {
-    SPELLS: ['spell', 'charm', 'incantation', 'hex', 'enchantment', 'ritual', 'sorcer', 'grimoire'],
-    EXPERIENCE: ['exp', 'experience', 'knowledge', 'learnings', 'wisdom', 'insight', 'comprehension', 'understanding'],
-    ARTICLES: ['scroll', 'tome', 'script', 'book', 'archive', 'article', 'document', 'record', 'report', 'manuscript', 'publication'],
+    SPELLS: ["spell", "charm", "incantation", "hex", "enchantment", "ritual", "sorcer", "grimoire"],
+    EXPERIENCE: ["exp", "experience", "knowledge", "learnings", "wisdom", "insight", "comprehension", "understanding"],
+    ARTICLES: ["scroll", "tome", "script", "book", "archive", "article", "document", "record", "report", "manuscript", "publication"],
     
-    ASTRAL_PROJECTION: ['astral', 'projection', 'out of body', 'spirit travel', 'astral travel'],
-    GAZE_OF_THE_SEER: ['gaze', 'seer', 'prophecy', 'clairvoyance', 'foresight', 'prediction'],
-    BOOK_OF_SHADOWS: ['book', 'shadows', 'dark tome', 'shadow script', 'shadow archive'],
-    DIMENSIONAL_RIFT: ['dimensional', 'rift', 'tear', 'space tear', 'portal', 'void'],
-    COGNITIVE_DISSONANCE: ['cognitive', 'dissonance', 'contradiction', 'inconsistency', 'conflict'],
-    ORACLES_VISION: ['oracle', 'vision', 'divination', 'prophesy', 'foresee', 'future sight'],
-    CHRONOS_GRASP: ['chronos', 'grasp', 'time hold', 'temporal grip', 'time control'],
-    ECHO_OF_THE_ANCIENTS: ['echo', 'ancients', 'ancient echo', 'ancient voice', 'old whisper'],
-    CHANNEL_GLIMPSE: ['channel', 'glimpse', 'quick look', 'peek', 'brief view'],
-    ANCESTORS_GUIDENCE: ['ancestor', 'guidance', 'lineage', 'heritage', 'wisdom', 'elder insight', 'past echo', 'forebears', 'kindred', 'legacy'],
-    ALCHEMY: ['alchem', 'transmut', 'transform', 'metamorphos', 'morph', 'fus', 'synthesize', 'meld', 'amalgamat', 'combin', 'mutat', 'transfigure', 'modif', 'remodel', 'reform', 'reshap', 'alter', 'revamp', 'reconfigure', 'rearrange', 'remold', 'rework']
+    ASTRAL_PROJECTION: ["astral", "projection", "out of body", "spirit travel", "astral travel"],
+    GAZE_OF_THE_SEER: ["gaze", "seer", "prophecy", "clairvoyance", "foresight", "prediction"],
+    BOOK_OF_SHADOWS: ["book", "shadows", "dark tome", "shadow script", "shadow archive"],
+    DIMENSIONAL_RIFT: ["dimensional", "rift", "tear", "space tear", "portal", "void"],
+    COGNITIVE_DISSONANCE: ["cognitive", "dissonance", "contradiction", "inconsistency", "conflict"],
+    ORACLES_VISION: ["oracle", "vision", "divination", "prophesy", "foresee", "future sight"],
+    CHRONOS_GRASP: ["chronos", "grasp", "time hold", "temporal grip", "time control"],
+    ECHO_OF_THE_ANCIENTS: ["echo", "ancients", "ancient echo", "ancient voice", "old whisper"],
+    CHANNEL_GLIMPSE: ["channel", "glimpse", "quick look", "peek", "brief view"],
+    ANCESTORS_GUIDANCE: ["ancestor", "guidance", "lineage", "heritage", "wisdom", "elder insight", "past echo", "forebears", "kindred", "legacy"],
+    ALCHEMY: ["alchem", "transmut", "transform", "metamorphos", "morph", "fus", "synthesize", "meld", "amalgamat", "combin", "mutat", "transfigure", "modif", "remodel", "reform", "reshap", "alter", "revamp", "reconfigure", "rearrange", "remold", "rework"]
 }
 
 const rankChangeMessages = [
@@ -420,7 +419,7 @@ const unknownSpellResponses = {
         "You open your mind, but see nothing. The Channel Glimpse is unknown.....",
         "You seek a brief view of the unseen, but find only the visible. The Channel Glimpse eludes you....",
         "Your sight is restricted to the present. The Channel Glimpse is not yet within your reach...."
-    ], ANCESTORS_GUIDENCE: [
+    ], ANCESTORS_GUIDANCE: [
         "You yearn for the whispers of the past, but silence greets you. Ancestor's Guidance remains elusive....",
         "You reach into the well of time, yet find it empty. The Ancestor's Guidance does not reveal itself....",
         "You listen for the echoes of wisdom, but hear only the wind. The Ancestor's Guidance is not yet within your grasp....",
@@ -439,59 +438,59 @@ const unknownSpellResponses = {
 };
 
 const ghostWords = [
-    'spirit', 
-    'ghost', 
-    'spectre', 
-    'whisper', 
-    'phantom', 
-    'apparition', 
-    'shade', 
-    'wraith'
+    "spirit", 
+    "ghost", 
+    "spectre", 
+    "whisper", 
+    "phantom", 
+    "apparition", 
+    "shade", 
+    "wraith"
 ]
 
-const adjectives = ['Brave', 'Valiant', 'Noble', 'Wise', 'Mysterious', 'Powerful', 'Diligent', 'Studious', 'Erudite', 'Meticulous', 'Organized', 'Detailed', 'Story-filled', 'Legendary', 'Respected', 'Profound', 'Omnipotent', 'Magnificent', 'Supreme'];
-const nameTemplates = ['{adj} {rank} {username}', '{username}, {rank} of {adj}ness', '{username} the {adj} {rank}'];
+const adjectives = ["Brave", "Valiant", "Noble", "Wise", "Mysterious", "Powerful", "Diligent", "Studious", "Erudite", "Meticulous", "Organized", "Detailed", "Story-filled", "Legendary", "Respected", "Profound", "Omnipotent", "Magnificent", "Supreme"];
+const nameTemplates = ["{adj} {rank} {username}", "{username}, {rank} of {adj}ness", "{username} the {adj} {rank}"];
 
 const GHOST_BLUE = 381163
 const BOOK_CREAM = 16504465
 
-const OWNER = '278910332439625728'
-const GUILD = '1105356364345249824'
-const CHANNEL = '1107705166079201380'
+const OWNER = "278910332439625728"
+const GUILD = "1105356364345249824"
+const CHANNEL = "1107705166079201380"
 
-const LOGS_CHANNEL_ID = '1105381908080238624'
-const WAXHEAD_CHANNEL_ID = '1107705166079201380'
-const SPELLS_SPECIAL_CHANNEL_ID = '1108486795173302382'
-const LABYRINTH_OF_KNOWLEDGE_ID = '1105399292681789520'
-const ARTICLES_SPECIAL_CHANNEL_ID = '1108488242359193751'
+const LOGS_CHANNEL_ID = "1105381908080238624"
+const WAXHEAD_CHANNEL_ID = "1107705166079201380"
+const SPELLS_SPECIAL_CHANNEL_ID = "1108486795173302382"
+const LABYRINTH_OF_KNOWLEDGE_ID = "1105399292681789520"
+const ARTICLES_SPECIAL_CHANNEL_ID = "1108488242359193751"
 
-const SAGE_ONLY_CATEGORY = '1105386603284791426'
-const ARTICLES = '1107786509295292592'
-const SPELLS = '1108481242803994724'
+const SAGE_ONLY_CATEGORY = "1105386603284791426"
+const ARTICLES = "1107786509295292592"
+const SPELLS = "1108481242803994724"
 
-const WAXHEAD_MESSGE_ID = '1107773010162761788'
+const WAXHEAD_MESSAGE_ID = "1107773010162761788"
 
-const SAGE = '1105390333895909386'
-const WAXHEAD = '1105400836806430790'
-const GRAND_LIBRARIAN = '1109077080102142094'
-const LOREKEEPER = '1109076884106530856'
-const MAGUS = '1109076761716736083'
-const ARCHIVIST = '1109076680674398294'
-const SCHOLAR = '1105379171468840960'
-const ACOLYTE = '1109076525359317062'
-const ENTRANT = '1105383342658031636'
-const NEOPHYTE = '1108482147053998172'
+const SAGE = "1105390333895909386"
+const WAXHEAD = "1105400836806430790"
+const GRAND_LIBRARIAN = "1109077080102142094"
+const LOREKEEPER = "1109076884106530856"
+const MAGUS = "1109076761716736083"
+const ARCHIVIST = "1109076680674398294"
+const SCHOLAR = "1105379171468840960"
+const ACOLYTE = "1109076525359317062"
+const ENTRANT = "1105383342658031636"
+const NEOPHYTE = "1108482147053998172"
 
 const roleMapping = {
-    'entrant': ENTRANT,
-    'scholar': SCHOLAR,
-    'sage': SAGE,
-    'reveal': NEOPHYTE,
-    'guide': NEOPHYTE,
-    'show': NEOPHYTE
+    "entrant": ENTRANT,
+    "scholar": SCHOLAR,
+    "sage": SAGE,
+    "reveal": NEOPHYTE,
+    "guide": NEOPHYTE,
+    "show": NEOPHYTE
 }
 
-const info = msg => console.log(`[${chalk.grey(timeStamp('HH:mm:ss'))}] [${chalk.bold.yellow('Grand')} ${chalk.bold.yellow('Archives')}] => ${chalk.green(msg)}`)
+const info = msg => console.log(`[${chalk.grey(timeStamp("HH:mm:ss"))}] [${chalk.bold.yellow("Grand")} ${chalk.bold.yellow("Archives")}] => ${chalk.green(msg)}`)
 const getRandomResponse = responses => { return responses[Math.floor(Math.random() * responses.length)] }
 
 async function setMemberNickname(member, rank) {
@@ -501,13 +500,13 @@ async function setMemberNickname(member, rank) {
         const template = nameTemplates[Math.floor(Math.random() * nameTemplates.length)];
 
         // Substitute values into the chosen template
-        let nickname = template.replace('{username}', member.user.username);
-        nickname = nickname.replace('{rank}', rank);
-        nickname = nickname.replace('{adj}', adj);
+        let nickname = template.replace("{username}", member.user.username);
+        nickname = nickname.replace("{rank}", rank);
+        nickname = nickname.replace("{adj}", adj);
 
-        // Limit the length to fit Discord's nickname length limit (32 characters)
+        // Limit the length to fit Discord"s nickname length limit (32 characters)
         if (nickname.length > 32)
-            nickname = nickname.substring(0, 29) + '...'
+            nickname = nickname.substring(0, 29) + "..."
 
         await member.setNickname(nickname);
         info(`${member.user.username} is now ${nickname}`)
@@ -597,7 +596,7 @@ function pickArticles(articlesObj, count, userArticlesArrays) {
     // Convert the articles object into an array of articles
     let articles = Object.keys(articlesObj).map(key => articlesObj[key]);
 
-    // Merge all user's articles into a single array
+    // Merge all user"s articles into a single array
     const allUserArticles = [].concat(...userArticlesArrays);
 
     // Get a count of how many users already have each article
@@ -696,7 +695,7 @@ const rankConditions = [
 
 function determineRank(user) {
     let experience = calculateExperience(user)
-    let rank = ''
+    let rank = ""
 
     rankConditions.forEach(rankCondition => {
         if (rankCondition.condition(experience)) 
@@ -725,7 +724,7 @@ function getMemberRank(guildMember) {
 
 function levelUpMessages(oldRank, newRank, user) {
     const randIndex = Math.floor(Math.random() * levelUpTexts[oldRank].length)
-    return levelUpTexts[oldRank][randIndex].replace('NEWRANK', newRank).replace('USERNAME', user)
+    return levelUpTexts[oldRank][randIndex].replace("NEWRANK", newRank).replace("USERNAME", user)
 }
 
 function detectRoleInString(str) {
@@ -782,23 +781,23 @@ async function setPermissions(channel, denyNeophyte) {
 }
 
 function replaceRank(message, replacements) {
-    return message.replace('RANK', replacements[Math.floor(Math.random() * replacements.length)])
+    return message.replace("RANK", replacements[Math.floor(Math.random() * replacements.length)])
 }
 
 async function handleContent(channel, collectable, collectable_category) {
     const maxMessageLength = 2000;
     let content = `${fs.readFileSync(`./${
-        collectable_category === 'spell' ? 'spells' : 'articles'
+        collectable_category === "spell" ? "spells" : "articles"
     }/${collectable}.TXT`).toString()}\n\n${replaceRank(acceptQuestion[Math.floor(Math.random() * 5)], neutralReplacements)}`;
 
     while (content.length > 0) {
         if (content.length <= maxMessageLength) {
             const msg = await channel.send({ content: content });
-            await msg.react('✅');
-            await msg.react('❌');
+            await msg.react("✅");
+            await msg.react("❌");
             return info(`Created ${collectable_category} ${collectable}`);
         } else {
-            const splitIndex = content.lastIndexOf(' ', maxMessageLength);
+            const splitIndex = content.lastIndexOf(" ", maxMessageLength);
             const section = content.substring(0, splitIndex);
             await channel.send({ content: section });
             content = content.substring(splitIndex);
@@ -810,7 +809,7 @@ async function getRandomResponseAndCheckRoles(userDb, member, isSpell) {
     const isEmpty = isSpell ? userDb.spellsCollected.length === 0 : userDb.articlesCollected.length === 0;
     if (isEmpty || member.roles.cache.has(ENTRANT)) {
         const response = isSpell ? getRandomResponse(sageNoSpellResponses) : getRandomResponse(sageNoArticleResponses);
-        return response.replaceAll('RANK', getRankDescriptor(getMemberRank(member), response.startsWith('RANK')));
+        return response.replaceAll("RANK", getRankDescriptor(getMemberRank(member), response.startsWith("RANK")));
     }
     return null;
 }
@@ -821,7 +820,7 @@ function generateDescription(clientCollectables, userDb, isSpell, client) {
             .filter(key => userDb.spellsCollected.includes(key))
             .map(key => client.collectables[key]))
 
-        let description = '';
+        let description = "";
         let spellIndex = 1; // Start index from 1
 
         // Iterate over each rarity of articles
@@ -830,7 +829,7 @@ function generateDescription(clientCollectables, userDb, isSpell, client) {
 
             // Iterate over each title under the current rarity
             for (const title of Object.keys(clientSpells[rarity])) {
-                if (JSON.stringify(clientSpells[rarity][title]).includes('undefined')) {
+                if (JSON.stringify(clientSpells[rarity][title]).includes("undefined")) {
                     let collectable = null
                     for (const [key, value] of Object.entries(client.collectables))
                         if (value.title === title) {
@@ -854,7 +853,7 @@ function generateDescription(clientCollectables, userDb, isSpell, client) {
                         const article = searchArticles(client.collectables, title, chapter, page)
                         const channel = client.channels.cache.get(article.channel)
                         return `[${page}](${channel.url})`
-                    }).join('\n')}\n`
+                    }).join("\n")}\n`
 
                     description += pages;
                 }
@@ -869,7 +868,7 @@ function generateDescription(clientCollectables, userDb, isSpell, client) {
         .filter(key => userDb.articlesCollected.includes(key))
         .map(key => clientCollectables[key]));
 
-    let description = '';
+    let description = "";
     let itemIndex = 1; 
 
     for (const rarity of Object.keys(clientItems)) {
@@ -886,7 +885,7 @@ function generateDescription(clientCollectables, userDb, isSpell, client) {
                     const url = client.channels.cache.get(article.channel).url;
 
                     return `[${page}](${url})`;
-                }).join(' ')}\n`;
+                }).join(" ")}\n`;
 
                 description += pages;
             }
@@ -924,7 +923,7 @@ export {
     SAGE_ONLY_CATEGORY,
 
     // Special message ids
-    WAXHEAD_MESSGE_ID,
+    WAXHEAD_MESSAGE_ID,
 
     // Role ids
     SAGE,
@@ -978,4 +977,88 @@ export {
     generateDescription,
     organizeCollectables,
     getRandomResponseAndCheckRoles
-}
+};
+
+export default {
+    // Global things related strictly to the server
+    TOKEN,
+    OWNER,
+    GUILD,
+    CHANNEL,
+
+    // Rarities
+    SPELL_RARITIES,
+    ARTICLE_RARITIES,
+
+    // Embed colors
+    GHOST_BLUE,
+    BOOK_CREAM,
+
+    // Special channel ids
+    LOGS_CHANNEL_ID,
+    WAXHEAD_CHANNEL_ID,
+    SPELLS_SPECIAL_CHANNEL_ID,
+    LABYRINTH_OF_KNOWLEDGE_ID,
+    ARTICLES_SPECIAL_CHANNEL_ID,
+
+    // Special category ids
+    SPELLS,
+    ARTICLES,
+    SAGE_ONLY_CATEGORY,
+
+    // Special message ids
+    WAXHEAD_MESSAGE_ID,
+
+    // Role ids
+    SAGE,
+    WAXHEAD,
+    GRAND_LIBRARIAN,
+    LOREKEEPER,
+    MAGUS,
+    ARCHIVIST,
+    SCHOLAR,
+    ACOLYTE,
+    ENTRANT,
+    NEOPHYTE,
+
+    ghostWords,
+    roleMapping,
+    commandSynonyms,
+    serverRanksRanked,
+    entitiesToExecute,
+    spellIncantations,
+    commandsToExecute,
+
+    // Bot responses
+    responsesDeny,
+    sageResponses,
+    acceptQuestion,
+    responsesAccept,
+    rankChangeMessages,
+    duplicateResponses,
+    nicknameChangeLogs,
+    sageNoSpellResponses,
+    unknownSpellResponses,
+    sageNoArticleResponses,
+
+    // Global widely used functions
+    info,
+    getUser,
+    determineRank,
+    getMemberRank,
+    levelUpMessages,
+    getRankDescriptor,
+    getRandomResponse,
+    setMemberNickname,
+    calculateExperience,
+
+    // Rarely used functions
+    pickArticles,
+    handleContent,
+    searchArticles,
+    setPermissions,
+    detectRoleInString,
+    generateDescription,
+    organizeCollectables,
+    getRandomResponseAndCheckRoles
+};

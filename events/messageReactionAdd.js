@@ -31,7 +31,7 @@ import {
     SAGE_ONLY_CATEGORY,
 
     // Special message ids
-    WAXHEAD_MESSGE_ID,
+    WAXHEAD_MESSAGE_ID,
 
     // Role ids
     SAGE,
@@ -108,7 +108,7 @@ export default {
 
         if (message.channel?.parent?.id === LABYRINTH_OF_KNOWLEDGE_ID &&
             message.id === (await message.channel.fetchStarterMessage())?.id) {
-            var userDb = await getUser(user.id)
+            let userDb = await getUser(user.id)
 
             userDb.reputation += 1
             userDb.markModified('reputation')
@@ -117,7 +117,7 @@ export default {
 
         // Wax chamber channel
         if (reaction.message.channel.id === WAXHEAD_CHANNEL_ID) {
-            if (message.id !== WAXHEAD_MESSGE_ID || 
+            if (message.id !== WAXHEAD_MESSAGE_ID || 
                 message.guild.members.cache.get(user.id).roles.cache.has(WAXHEAD))
                 return
 
@@ -131,7 +131,7 @@ export default {
                     // Between 15 and 45 minutes.
                     const opportunityTimeMin = (Math.floor(Math.random() * (45 - 15 + 1)) + 15) * 60 * 1000
 
-                    var chosenUserDb = await getUser(user.id)
+                    let chosenUserDb = await getUser(user.id)
                     chosenUserDb.experience += (Math.floor(Math.random() * (30 - 10 + 1)) + 10) * (Math.random() * (Number(`${Date.now()}`.slice(-1)) + 1)) + Math.random()
                     chosenUserDb.markModified('experience')
                     await chosenUserDb.save()
@@ -188,7 +188,7 @@ export default {
                     client.activeUsers.delete(user.id)
                 }, 10 * 1000)
 
-            var userDb = await getUser(user.id)
+            let userDb = await getUser(user.id)
 
             const collectableClass = reaction.message.channel?.parent.id === ARTICLES ? 
                 'article' : 'spell'

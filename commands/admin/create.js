@@ -33,7 +33,7 @@ import {
     SAGE_ONLY_CATEGORY,
 
     // Special message ids
-    WAXHEAD_MESSGE_ID,
+    WAXHEAD_MESSAGE_ID,
 
     // Role ids
     SAGE,
@@ -127,7 +127,7 @@ export default {
             }])
 
             client.collectables[collectable].channel = channel.id;
-            fs.writeFileSync('./collectables.TXT', beautify(client.collectables, null, 2, 80))
+            fs.writeFileSync('./assets/collectables.json', beautify(client.collectables, null, 2, 80))
 
             try {
                 await handleContent(channel, collectable, collectable_category)

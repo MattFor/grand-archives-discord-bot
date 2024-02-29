@@ -31,7 +31,7 @@ import {
     SAGE_ONLY_CATEGORY,
 
     // Special message ids
-    WAXHEAD_MESSGE_ID,
+    WAXHEAD_MESSAGE_ID,
 
     // Role ids
     SAGE,
@@ -144,7 +144,7 @@ export default {
             : numScrolls <= 8 ? "Quite a collection of scrolls you have there, RANK. You are truly devoted to understanding the ancient ways."
             : "Astounding! Only a true RANK can posses such an impressive collection of ethereal scrolls.").replaceAll('RANK', getRankDescriptor(getMemberRank(message.member)))
 
-        var embed = {
+        let embed = {
             color: BOOK_CREAM,
             title: `${message.member?.nickname??message.author.username}'s reference booklet`,
             description: description

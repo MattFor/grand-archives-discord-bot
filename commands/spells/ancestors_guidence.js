@@ -31,7 +31,7 @@ import {
     SAGE_ONLY_CATEGORY,
 
     // Special message ids
-    WAXHEAD_MESSGE_ID,
+    WAXHEAD_MESSAGE_ID,
 
     // Role ids
     SAGE,
@@ -98,7 +98,7 @@ const noReplyResponses = [
 ]
 
 export default {
-    name: 'ANCESTORS_GUIDENCE',
+    name: 'ANCESTORS_GUIDANCE',
     /**
      * @param {Bot} client 
      * @param {Discord.Message} message

@@ -4,6 +4,7 @@
     "capture-console": "^1.0.1",
     "chalk": "^5.2.0",
     "discord.js": "^14.11.0",
+    "emoji-mixer": "^1.0.6",
     "jimp": "^0.22.8",
     "json-beautify": "^1.1.1",
     "mongoose": "^7.1.1",

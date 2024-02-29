@@ -31,7 +31,7 @@ import {
     SAGE_ONLY_CATEGORY,
 
     // Special message ids
-    WAXHEAD_MESSGE_ID,
+    WAXHEAD_MESSAGE_ID,
 
     // Role ids
     SAGE,
@@ -151,7 +151,7 @@ export default {
             spellIndex++; // Increment the article index
         }
 
-        var embed = {
+        let embed = {
             color: GHOST_BLUE,
             title: `${message.member?.nickname??message.author.username}'s grimoire`,
             description: description
