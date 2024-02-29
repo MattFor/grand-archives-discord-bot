@@ -82,10 +82,32 @@
   "ancestors-guidence": {
     "type": "spell",
     "acquirable": true,
-    "rarity": 6,
+    "rarity": 8,
     "wax": false,
-    "channel": "1109621596840276078",
+    "channel": "1109637419919224842",
     "title": "Ancestor's Guidence",
+    "description": "You have stumbled upon a sacred sorcery, learn and practice its usage here."
+  },
+  "benedei-scrolls": {
+    "authorId": "696152241261772831",
+    "authorName": "Djase",
+    "type": "spell",
+    "acquirable": false,
+    "rarity": 3,
+    "wax": false,
+    "channel": "1112331700479987742",
+    "title": "The Benedei Scrolls",
+    "chapter": "\"Eons-forgotten miracles of power and peril\"",
+    "page": "The ancient tablet",
+    "description": "Learn all about the sacred art of Benedei spells, more commonly known as 'miracle spells' to a primitive mage."
+  },
+  "alchemy": {
+    "type": "spell",
+    "acquirable": true,
+    "rarity": 10,
+    "wax": false,
+    "channel": "",
+    "title": "Transmutative Alchemy",
     "description": "You have stumbled upon a sacred sorcery, learn and practice its usage here."
   }
 }

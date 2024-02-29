@@ -94,7 +94,9 @@ export default {
      * @param {discord.GuildMember} newMember 
      */
     async run(client, oldMember, newMember) {
-        if (!oldMember.roles.cache.filter(r => 
+        if (
+            // Old roles do not equal new roles
+            !oldMember.roles.cache.filter(r => 
                 r.id !== NEOPHYTE && 
                 r.id !== WAXHEAD && 
                 r.id !== newMember.guild.roles.everyone.id)
@@ -102,9 +104,17 @@ export default {
                 r.id !== NEOPHYTE && 
                 r.id !== WAXHEAD &&     
                 r.id !== newMember.guild.roles.everyone.id)) && 
+
+            // User is not a bot + previous
             !newMember.user.bot && 
-            oldMember.roles.cache.first() !== newMember.roles.cache.first())
-    
+            oldMember.roles.cache.first() !== newMember.roles.cache.first() &&
+
+            !(  // New member has no roles [NEGATIVE]
+                newMember.roles.cache.first().id === newMember.guild.roles.everyone.id && 
+                newMember.roles.cache.size === 1
+            )
+        )
+
         setTimeout(async () => {
             const rank = newMember.roles.cache.first()
 

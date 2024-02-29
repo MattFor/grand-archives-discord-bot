@@ -166,10 +166,13 @@ export default {
                         client.activeUsers.delete(user.id)
                     }, 60 * 1000)
                 default: 
-                    console.log(reaction, user)
+                    return
             }
         // Article channel
         } else if ([ARTICLES, SPELLS].includes(reaction.message.channel?.parent.id)) {
+            if (!['✅', '❌'].includes(reaction.emoji.name))
+                return
+
             const hasWax = member.roles.cache.has(WAXHEAD)
             if (hasWax && !!client.activeUsers[user.id])
                 client.activeUsers[user.id][0]++
@@ -226,20 +229,25 @@ export default {
                     userDb[typeToSave].push(message.channel.name)
                     userDb.markModified(typeToSave)
                     info(`${user.tag} has gained ${collectableClass} ${message.channel.name}`)
+                    message.channel.permissionOverwrites.create(user, {
+                        ViewChannel: true
+                    }).catch(null)
                     await message.channel.send({ content: response.replaceAll('USER', user).replaceAll('RANK', getRankDescriptor(getMemberRank(member), response.startsWith('RANK'))) })
-                        .then(m => setTimeout(() => m.delete(), 2 * 60 * 1000))
+                        .then(m => setTimeout(() => m.delete(), 2 * 60 * 1000)).catch(null)
                 } break
                 case '❌': {
                     const response = getRandomResponse(responsesDeny)
                     userDb.collectablesDenied.push(message.channel.name)
                     userDb.markModified('collectablesDenied')
+                    message.channel.permissionOverwrites.create(user, {
+                        ViewChannel: true
+                    }).catch(null)
                     await message.channel.send({ content: response.replaceAll('USER', user).replaceAll('RANK', getRankDescriptor(getMemberRank(member), response.startsWith('RANK'))) })
                         .then(m => setTimeout(() => m.delete(), 60 * 1000))
                     info(`${user.tag} has declined ${collectableClass} ${message.channel.name}`)
                 } break
-                default: {
-                    console.log(reaction, user)
-                } break
+                default:
+                    return
             }
 
             await userDb.save()

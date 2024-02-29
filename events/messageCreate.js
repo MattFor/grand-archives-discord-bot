@@ -1,6 +1,5 @@
 'use strict'
 
-import fs from 'fs'
 import beautify from 'json-beautify'
 
 import Bot from '../main.js'
@@ -90,6 +89,31 @@ import {
     getRandomResponseAndCheckRoles
 } from '../constants.js'
 
+const commandSynonyms2 = {
+    ASTRAL_PROJECTION: ['astral', 'projection', 'out of body', 'spirit travel', 'astral travel'],
+    GAZE_OF_THE_SEER: ['gaze', 'seer', 'prophecy', 'clairvoyance', 'foresight', 'prediction'],
+    BOOK_OF_SHADOWS: ['book', 'shadows', 'dark tome', 'shadow script', 'shadow archive'],
+    DIMENSIONAL_RIFT: ['dimensional', 'rift', 'tear', 'space tear', 'portal', 'void'],
+    COGNITIVE_DISSONANCE: ['cognitive', 'dissonance', 'contradiction', 'inconsistency', 'conflict'],
+    ORACLES_VISION: ['oracle', 'vision', 'divination', 'prophesy', 'foresee', 'future sight'],
+    CHRONOS_GRASP: ['chronos', 'grasp', 'time hold', 'temporal grip', 'time control'],
+    ECHO_OF_THE_ANCIENTS: ['echo', 'ancients', 'ancient echo', 'ancient voice', 'old whisper'],
+    CHANNEL_GLIMPSE: ['channel', 'glimpse', 'quick look', 'peek', 'brief view'],
+    ANCESTORS_GUIDENCE: ['ancestor', 'guidance', 'lineage', 'heritage', 'wisdom', 'elder insight', 'past echo', 'forebears', 'kindred', 'legacy'],
+    ALCHEMY: ['alchem', 'transmut', 'transform', 'metamorphos', 'morph', 'fus', 'synthesize', 'meld', 'amalgamat', 'combin', 'mutat', 'transfigure', 'modif', 'remodel', 'reform', 'reshap', 'alter', 'revamp', 'reconfigure', 'rearrange', 'remold', 'rework']
+}
+
+function checkStringForSynonyms(str) {
+    for (let [command, synonyms] of Object.entries(commandSynonyms2)) {
+        for (let synonym of synonyms) {
+            if (str.includes(synonym)) {
+                return command;
+            }
+        }
+    }
+    return false;
+}
+
 export default {
     /**
      * @param {Bot} client 
@@ -138,11 +162,11 @@ export default {
                     if (lowerCaseMessage.includes('spell') || lowerCaseMessage.includes('scroll') || lowerCaseMessage.includes('article')) {
                         const isSpell = lowerCaseMessage.includes('spell');
                         
-                        const response = await getRandomResponseAndCheckRoles(userDb, message.member, isSpell);
+                        const response = await getRandomResponseAndCheckRoles(userDb, disciple, isSpell);
                         if (response) return message.channel.send({ content: response });
                     
-                        const description = generateDescription(client.collectables, userDb, isSpell);
-                        const title = `${disciple.nickname??disciple.user.username}'s ${isSpell ? 'spellbook' : 'reference booklet'}`;
+                        const description = generateDescription(client.collectables, userDb, isSpell, client);
+                        const title = `${disciple.nickname??disciple.user.username}'s ${isSpell ? 'grimoire' : 'reference booklet'}`;
                         const color = isSpell ? GHOST_BLUE : BOOK_CREAM;
                     
                         if (!isSpell) {
@@ -162,7 +186,7 @@ export default {
                     }
 
                     const cmd1 = lowerCaseMessage.includes('set') || lowerCaseMessage.includes('bestow upon')
-                    const cmd2 = lowerCaseMessage.includes('data')
+                    const cmd2 = lowerCaseMessage.includes('data') 
                     let cmd3 = null
 
                     for (const keyword in roleMapping)
@@ -187,9 +211,9 @@ export default {
                     }
 
                     if (cmd2) {
-                        const userDb = await getUser(member.user.id)
+                        const userDb = await getUser(disciple.user.id)
                     
-                        let oldRank = getMemberRank(member)
+                        let oldRank = getMemberRank(disciple)
                         let newRank = determineRank(userDb)
 
                         return message.channel.send({ content: 
@@ -218,18 +242,30 @@ export default {
 
                 switch(command) {
                     case 'update':
-                        return client.spells.get('update').run(client, channel)
+                        return client.spells.get('update').run(
+                            client, 
+                            client.channels.cache.get(channel),
+                            collectable,
+                            collectable_category
+                        )
                     case 'create':
-                        return client.spells.get('create').run(client, collectable, collectable_category)
+                        return client.spells.get('create').run(
+                            client, 
+                            collectable, 
+                            collectable_category
+                        )
                 }
             }
         }
         
+        const customIncantation = checkStringForSynonyms(lowerCaseMessage)
         const executeCommand = (
             // Check if the message matches an initiation phrase from either commandsToExecute or spellIncantations
             (commandsToExecute.some(cmd => lowerCaseMessage.includes(cmd)) && 
             entitiesToExecute.some(entity => lowerCaseMessage.startsWith(entity))) || 
-            spellIncantations.some(inc => lowerCaseMessage.includes(inc))
+            spellIncantations.some(inc => lowerCaseMessage.includes(inc)) || 
+            (customIncantation && 
+            message.content.split(' ').length >= 5)
         )
 
         if (!executeCommand) 
@@ -242,7 +278,7 @@ export default {
             commandName = ['SPELLS', 'EXPERIENCE', 'ARTICLES'].find(cmd => 
                 commandSynonyms[cmd].some(syn => lowerCaseMessage.includes(syn))
             );
-        } else if (spellIncantations.some(inc => lowerCaseMessage.includes(inc))) {
+        } else if (spellIncantations.some(inc => lowerCaseMessage.includes(inc)) || customIncantation) {
             // If the message contains a command initiation phrase from spellIncantations, find the spell command
             commandName = Object.keys(commandSynonyms)
                 .filter(cmd => !['SPELLS', 'EXPERIENCE', 'ARTICLES'].includes(cmd))  // Filter out the non-spell commands
@@ -250,17 +286,17 @@ export default {
         }
         
         // If no command was found, default to 'ARTICLES'
-        commandName = commandName ?? null
-        
-        if (!commandName)
+        commandName = customIncantation ?? commandName ?? null
+
+        if (!commandName || !client._spells.available.includes(commandName))
             return
+
+        const command = client.spells.get(commandName)
 
         var userDb = await getUser(message.author.id)
 
         if (!['SPELLS', 'EXPERIENCE', 'ARTICLES'].includes(commandName) && !userDb.sorceriesCollected.includes(commandName))
             return message.reply({ content: getRandomResponse(unknownSpellResponses[commandName]) })
-            
-        const command = client.spells.get(commandName)
 
         const unavailableDMSpellResponses = [
             "Your spell fades before it can take hold... The privacy of this realm stifles its magic.",

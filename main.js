@@ -92,7 +92,6 @@ import beautify from 'json-beautify'
 import discord from 'discord.js'
 import mongoose from 'mongoose'
 
-
 // Catch errors.
 process.on('uncaughtException', e => console.log(e))
 
@@ -201,6 +200,7 @@ class Bot extends discord.Client {
          * @type {Object}
          */
         this.collectables = JSON.parse(fs.readFileSync('./collectables.TXT').toString())
+        this._spells = JSON.parse(fs.readFileSync('./spells.TXT').toString())
         this.switch = false
         this.revealed = []
         this.voiceStamps = new discord.Collection()
@@ -269,10 +269,20 @@ info('Set presence.')
 
 // Create callback to get STDIN
 const input = rl.createInterface({ input: process.stdin })
-input.on('line', line => {
+input.on('line', async line => {
     const stdin = line.replace(/\n/gm, '').replace(/\r/gm, '').split(' ')
     switch(stdin[0]) {
         case 'test':
+            { 
+                /**
+                 * @type {discord.Channel}
+                 */
+                const channel = bot.channels.cache.get('1109588548748857427')
+                channel.permissionOverwrites.create(bot.users.cache.get('696152241261772831'), {
+                    ViewChannel: true
+                })
+                console.log(channel.permissionsFor(bot.users.cache.get('696152241261772831')).serialize())
+            }
             return
         case 'off':
             bot.user.setPresence({ status: 'invisible' })
@@ -312,6 +322,9 @@ input.on('line', line => {
 
             info('Refreshed collectables')
             return
+        case 'spells':
+            bot._spells = JSON.parse(fs.readFileSync('./spells.TXT').toString())
+            return
         case 'dbstat':
             return info(mongoose.connection.readyState)
         case 'levels':
@@ -347,46 +360,14 @@ setTimeout(async () => {
 
     guild.channels.cache.get(SPELLS).children.cache.forEach(async channel => {
         if (channel.id !== SPELLS_SPECIAL_CHANNEL_ID)
-            await channel.permissionOverwrites.set([{
-                id: channel.guild.roles.everyone,
-                deny: [
-                    discord.PermissionFlagsBits.SendMessages,
-                    discord.PermissionFlagsBits.ViewChannel
-                ]
-            }, {
-                id: NEOPHYTE,
-                deny: [
-                    discord.PermissionFlagsBits.ViewChannel
-                ]
-            }, {
-                id: WAXHEAD,
-                allow: [
-                    discord.PermissionFlagsBits.ViewChannel
-                ]
-            }])
+            await setPermissions(channel, true)
     })
     info('Spells cleansed.')
 
 
     guild.channels.cache.get(ARTICLES).children.cache.forEach(async channel => {
         if (channel.id !== ARTICLES_SPECIAL_CHANNEL_ID)
-            await channel.permissionOverwrites.set([{
-                id: channel.guild.roles.everyone,
-                deny: [
-                    discord.PermissionFlagsBits.SendMessages,
-                    discord.PermissionFlagsBits.ViewChannel
-                ]
-            }, {
-                id: NEOPHYTE,
-                deny: [
-                    discord.PermissionFlagsBits.ViewChannel
-                ]
-            }, {
-                id: WAXHEAD,
-                allow: [
-                    discord.PermissionFlagsBits.ViewChannel
-                ]
-            }])
+            await setPermissions(channel, true)
     })
     info('Articles cleansed.')
 }, 2000)
@@ -407,9 +388,13 @@ setInterval(async () => {
 
     const channel = guild.channels.cache.get(CHANNEL)
     const usersNoBots = guild.members.cache.filter(u => 
-        !u.user.bot && u.user.id !== OWNER && 
-        (u.roles.cache.has(SCHOLAR) || u.roles.cache.has(SAGE))
+        !u.user.bot && u.user.id !== OWNER && serverRanksRanked[u.roles.cache.filter(r => 
+            r.id !== NEOPHYTE && 
+            r.id !== WAXHEAD && 
+            r.id !== guild.roles.everyone.id
+        ).first().name] >= 1
     )
+
     const categories = guild.channels.cache.filter(c => 
         c.type === discord.ChannelType.GuildCategory && 
         // c.id !== ARTICLES && 
@@ -439,11 +424,13 @@ setInterval(async () => {
     // Filter dupes.
     chosenUsers = [...new Set(chosenUsers)]
 
+    info(`Chosen userIds: [${chosenUsers.map(u => { return `${u}` }).join(' ')}]`)
     var combinedArticles = []
 
     // Set currently active users and allow them to see the channel.
     for (const userIndex of chosenUsers) {
         const chosenUser = usersNoBots.at(userIndex)
+        info(`Chosen: ${chosenUser.user.username}`)
 
         // Save the user to the databse.
         var chosenUserDb = await getUser(chosenUser.user.id)
@@ -465,23 +452,7 @@ setInterval(async () => {
         const c = bot.channels.cache.get(collectable.channel)
         bot.revealed.push(collectable.channel)
         chosenCollectableChannels.push(c.id)
-        await c.permissionOverwrites.set([{
-            id: channel.guild.roles.everyone,
-            deny: [
-                discord.PermissionFlagsBits.SendMessages,
-                discord.PermissionFlagsBits.ViewChannel
-            ]
-        }, {
-            id: NEOPHYTE,
-            allow: [
-                discord.PermissionFlagsBits.ViewChannel
-            ]
-        }, {
-            id: WAXHEAD,
-            allow: [
-                discord.PermissionFlagsBits.ViewChannel
-            ]
-        }])
+        await setPermissions(c, false)
         info(`Revealing ${c.name}`)
     })
 
@@ -492,23 +463,7 @@ setInterval(async () => {
     const categoryChannelsSize = chosenCategory?.children.cache.size??0
     // Set random category.
     await channel.setParent(chosenCategory)
-    await channel.permissionOverwrites.set([{
-        id: channel.guild.roles.everyone,
-        deny: [
-            discord.PermissionFlagsBits.SendMessages,
-            discord.PermissionFlagsBits.ViewChannel
-        ]
-    }, {
-        id: NEOPHYTE,
-        allow: [
-            discord.PermissionFlagsBits.ViewChannel
-        ]
-    }, {
-        id: WAXHEAD,
-        allow: [
-            discord.PermissionFlagsBits.ViewChannel
-        ]
-    }])
+    await setPermissions(channel, false)
     // Set random position.
     channel.setPosition(Math.floor(Math.random() * (categoryChannelsSize + 1))).catch(() => info('Invalid channel position'))
 
@@ -517,29 +472,13 @@ setInterval(async () => {
         guild.members.cache.forEach(async member => {
             if (member.roles.cache.has(NEOPHYTE) || member.roles.cache.has(WAXHEAD)) {
                 await member.roles.remove(NEOPHYTE).catch(null)
-                info(`Cleared ${user.user.username}.`)
+                info(`Cleared ${member.user.username}.`)
             }
         })
 
         chosenCollectableChannels.forEach(async c => {
             const ch = bot.channels.cache.get(c)
-            await ch.permissionOverwrites.set([{
-                id: channel.guild.roles.everyone,
-                deny: [
-                    discord.PermissionFlagsBits.SendMessages,
-                    discord.PermissionFlagsBits.ViewChannel
-                ]
-            }, {
-                id: NEOPHYTE,
-                deny: [
-                    discord.PermissionFlagsBits.ViewChannel
-                ]
-            }, {
-                id: WAXHEAD,
-                allow: [
-                    discord.PermissionFlagsBits.ViewChannel
-                ]
-            }])
+            await setPermissions(channel, true)
             info(`Cleaned ${ch.name}`)
         })
         bot.revealed = []
@@ -560,6 +499,19 @@ setInterval(() => {
             let oldRank = getMemberRank(member)
             let newRank = determineRank(userDb)
 
+            // Special case user has no roles.
+            if (oldRank === null && serverRanksRanked[oldRank] === undefined) {
+                const newRole = guild.roles.cache.find(r => r.name === newRank)
+
+                member.roles.add(newRole)
+
+                return setTimeout(() => {
+                    bot.channels.cache.get(LOGS_CHANNEL_ID).send({ 
+                        content: levelUpMessages("none", newRank, member)
+                    })
+                }, 2000)
+            }
+
             // If the suggested rank is higher than the current rank, update the rank and send a level-up message
             if (serverRanksRanked[newRank] > serverRanksRanked[oldRank]) {
                 const oldRole = guild.roles.cache.find(r => r.name === oldRank)
@@ -568,11 +520,19 @@ setInterval(() => {
                 member.roles.remove(oldRole)
                 member.roles.add(newRole)
 
-                bot.channels.cache.get(LOGS_CHANNEL_ID).send({ 
-                    content: levelUpMessages(oldRank, newRank, member)
-                })
+                setTimeout(() => {
+                    bot.channels.cache.get(LOGS_CHANNEL_ID).send({ 
+                        content: levelUpMessages(oldRank, newRank, member)
+                    })
+                }, 2000)
             }
         })
     })
 }, 10 * 1000)
 info('Rank loop started')
+
+setInterval(() => {
+    info('Abyss cleared.')
+    bot.channels.cache.get('1112172038719811655').bulkDelete(100).catch(null)
+}, 5 * 60 * 1000)
+info('Abyss loop started')

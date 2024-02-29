@@ -9,7 +9,7 @@ import getUser from './database.js'
 
 const TOKEN = 'Nzc2MDUxMzUwNjY0NTExNDg5.GsLN7z.qiT2KBu0TqpDAdRPOCNPUa37w9tYohy5RibDRw'
 
-const serverRanks = ["Entrant", "Acolyte", "Scholar", "Archivist", "Magus", "Lorekeeper", "Grand Librarian", "Sage", "Crystal Sage"];
+const serverRanks = ["Entrant", "Acolyte", "Scholar", "Archivist", "Magus", "Lorekeeper", "Grand Librarian", "Sage", "Archmage of Crystalline Arts"];
 const serverRanksRanked = {
     "Entrant": 0, 
     "Acolyte": 1, 
@@ -19,7 +19,7 @@ const serverRanksRanked = {
     "Lorekeeper": 4, 
     "Grand Librarian": 4, 
     "Sage": 5, 
-    "Crystal Sage": 10000
+    "Archmage of Crystalline Arts": 10000
 }
 
 const SPELL_RARITIES = {
@@ -141,10 +141,17 @@ const rankDescriptors = {
     "Lorekeeper": ["wise Lorekeeper", "story-filled Lorekeeper", "legendary Lorekeeper"],
     "Grand Librarian": ["venerable Grand Librarian", "respected Grand Librarian", "grand Grand Librarian"],
     "Sage": ["enlightened Sage", "profound Sage", "wise Sage"],
-    "Crystal Sage": ["omnipotent Crystal Sage", "magnificent Crystal Sage", "supreme Crystal Sage"]
+    "Archmage of Crystalline Arts": ["omnipotent Crystal Sage", "magnificent Crystal Sage", "supreme Crystal Sage"]
 }
 
 const levelUpTexts = {
+    "none": [
+        "Emerging from the veil of shadows, USERNAME has claimed their rightful place as a NEWRANK. The whispers of old magic grow quiet in recognition, as the echo of their name resounds in the hallowed halls of our sanctum.",
+        "Stepping forth from the mists of uncertainty, USERNAME rises, now bearing the esteemed mantle of a NEWRANK. Ancient magic stirs in acknowledgement, resonating with the newfound power that joins our ranks.",
+        "Through the ethereal fog of obscurity, USERNAME has emerged, now graced with the title of a NEWRANK. The resonant hum of age-old incantations welcomes their ascension, acknowledging a new beacon of power within our midst.",
+        "From the labyrinth of enigma, USERNAME has found their path, now stepping forth as a NEWRANK. The silence of ancient scrolls breaks for a moment, acknowledging the rise of a new force within our arcane sanctum.",
+        "Out of the echoing void, USERNAME emerges, casting off anonymity to bear the title of a NEWRANK. Old magic rustles in recognition, sensing the emanation of a new power within our hallowed halls."
+    ],
     "Entrant": [
         `By the authority vested in this scroll, it is hereby declared that our fellow USERNAME is no longer an Entrant, but has ascended to the rank of a NEWRANK.`,
         `Let it be known that USERNAME, once an Entrant, has made notable progress, and is henceforth recognized as a NEWRANK.`,
@@ -252,31 +259,61 @@ const commandsToExecute = [
 ]
 
 const spellIncantations = [
-    'i invoke the', 
-    'by the power of', 
-    'unleash the', 
-    'cast the', 
-    'i call upon the', 
-    'bring forth the', 
-    'awaken the', 
-    'i conjure the', 
-    'i summon the', 
-    'harness the', 
-    'let us witness the', 
-    'evoke the', 
-    'channel the', 
-    'i beseech the', 
-    'manifest the', 
-    'i command the', 
-    'awake, oh', 
-    'unbind the', 
-    'i draw from the', 
-    'rise, oh', 
-    'i ask for the', 
-    'grant me the', 
-    'activate the', 
-    'release the', 
-    'i enact the'
+    'i invoke',
+    'by the power of',
+    'unleash',
+    'cast',
+    'i call upon',
+    'bring forth',
+    'awaken',
+    'i conjure',
+    'i summon',
+    'harness',
+    'let us witness',
+    'evoke',
+    'channel',
+    'i beseech',
+    'manifest',
+    'i command',
+    'awake, oh',
+    'unbind',
+    'i draw from',
+    'rise, oh',
+    'i ask for',
+    'grant me',
+    'activate',
+    'release',
+    'i enact',
+    'unfold, oh',
+    'i request',
+    'trigger',
+    'by the wisdom of',
+    'by the sight of',
+    'by the hand of',
+    'by the voice of',
+    'by the echoes of',
+    'by the grasp of',
+    'by the light of',
+    'by the will of',
+    'by the shadows of',
+    'by the rifts of',
+    'by the conflict of',
+    'by the vision of',
+    'by the touch of',
+    'by the whisper of',
+    'by the glimpse of',
+    'by the legacy of',
+    'ignite',
+    'initiate',
+    'stir',
+    'provoke',
+    'incite',
+    'conjure the essence of',
+    'bring about',
+    'call forth the power of',
+    'in the name of',
+    'by the ancient rites of',
+    'by the cryptic codes of'
 ]
 
 const entitiesToExecute = [
@@ -293,7 +330,7 @@ const entitiesToExecute = [
 const neutralReplacements = ['Wise one', 'Seeker', 'Reader', 'Traveler', 'Explorer'];
 
 const commandSynonyms = {
-    SPELLS: ['spell', 'charm', 'incantation', 'hex', 'enchantment', 'ritual', 'sorcery'],
+    SPELLS: ['spell', 'charm', 'incantation', 'hex', 'enchantment', 'ritual', 'sorcer', 'grimoire'],
     EXPERIENCE: ['exp', 'experience', 'knowledge', 'learnings', 'wisdom', 'insight', 'comprehension', 'understanding'],
     ARTICLES: ['scroll', 'tome', 'script', 'book', 'archive', 'article', 'document', 'record', 'report', 'manuscript', 'publication'],
     
@@ -306,7 +343,8 @@ const commandSynonyms = {
     CHRONOS_GRASP: ['chronos', 'grasp', 'time hold', 'temporal grip', 'time control'],
     ECHO_OF_THE_ANCIENTS: ['echo', 'ancients', 'ancient echo', 'ancient voice', 'old whisper'],
     CHANNEL_GLIMPSE: ['channel', 'glimpse', 'quick look', 'peek', 'brief view'],
-    ANCESTORS_GUIDENCE: ['ancestors', 'guidance', 'lineage', 'heritage', 'wisdom', 'elder insight', 'past echo', 'forebears', 'kindred', 'legacy']
+    ANCESTORS_GUIDENCE: ['ancestor', 'guidance', 'lineage', 'heritage', 'wisdom', 'elder insight', 'past echo', 'forebears', 'kindred', 'legacy'],
+    ALCHEMY: ['alchem', 'transmut', 'transform', 'metamorphos', 'morph', 'fus', 'synthesize', 'meld', 'amalgamat', 'combin', 'mutat', 'transfigure', 'modif', 'remodel', 'reform', 'reshap', 'alter', 'revamp', 'reconfigure', 'rearrange', 'remold', 'rework']
 }
 
 const rankChangeMessages = [
@@ -389,6 +427,14 @@ const unknownSpellResponses = {
         "Your spirit calls out for the voices of the forebears, but they offer no response. The Ancestor's Guidance remains shrouded...",
         "You cast your senses into the ancient tapestry of time, yet it remains inscrutable. Ancestor's Guidance continues to baffle you...",
         "You strain your ears towards the echoes of bygone ages, but they remain silent. The Ancestor's Guidance is yet to grace your path..."
+    ],
+    ALCHEMY: [
+        "You mix the elements at hand, but no new form emerges. Alchemy remains a mystery....",
+        "You attempt to weave the existing into something new, yet no transmutation occurs. The art of Alchemy eludes you....",
+        "You coax the known to reveal the unknown, but it holds its secrets close. Alchemy is not yet within your mastery....",
+        "You stir the pot of creation, yet the expected doesn't take shape. Alchemy remains locked...",
+        "You blend the essences together, yet it refuses to mold into a new entity. Alchemy continues to challenge you...",
+        "You seek to create by combining, yet the elements remain stubbornly separate. The secrets of Alchemy are yet to grace your craft..."
     ]
 };
 
@@ -712,24 +758,27 @@ function detectRoleInString(str) {
     return null;
 }
 
-async function setPermissions(channel) {
-    await channel.permissionOverwrites.set([{
-        id: channel.guild.roles.everyone,
-        deny: [
-            Discord.PermissionFlagsBits.SendMessages,
-            Discord.PermissionFlagsBits.ViewChannel
-        ]
-    }, {
-        id: NEOPHYTE,
-        allow: [
-            Discord.PermissionFlagsBits.ViewChannel
-        ]
-    }, {
-        id: WAXHEAD,
-        allow: [
-            Discord.PermissionFlagsBits.ViewChannel
-        ]
-    }]).catch(e => console.log(e));
+/**
+ * 
+ * @param {Discord.Channel} channel 
+ */
+async function setPermissions(channel, denyNeophyte) {
+    const neophyte = channel.guild.roles.cache.get(NEOPHYTE)
+    const waxhead = channel.guild.roles.cache.get(WAXHEAD)
+    const everyone = channel.guild.roles.everyone
+
+    await channel.permissionOverwrites.create(neophyte, {
+        ViewChannel: denyNeophyte ? false : true,
+        SendMessages: false
+    })
+    await channel.permissionOverwrites.create(waxhead, {
+        ViewChannel: true,
+        SendMessages: false
+    })
+    await channel.permissionOverwrites.create(everyone, {
+        ViewChannel: false,
+        SendMessages: false
+    })
 }
 
 function replaceRank(message, replacements) {
@@ -766,7 +815,56 @@ async function getRandomResponseAndCheckRoles(userDb, member, isSpell) {
     return null;
 }
 
-function generateDescription(clientCollectables, userDb, isSpell) {
+function generateDescription(clientCollectables, userDb, isSpell, client) {
+    if (isSpell) {
+        let clientSpells = organizeCollectables(Object.keys(client.collectables)
+            .filter(key => userDb.spellsCollected.includes(key))
+            .map(key => client.collectables[key]))
+
+        let description = '';
+        let spellIndex = 1; // Start index from 1
+
+        // Iterate over each rarity of articles
+        for (const rarity of Object.keys(clientSpells).map(n => { return Number(n) }).sort((a, b) => b - a)) {
+            description += `${spellIndex}. ${SPELL_RARITIES[rarity]}:\n`;
+
+            // Iterate over each title under the current rarity
+            for (const title of Object.keys(clientSpells[rarity])) {
+                if (JSON.stringify(clientSpells[rarity][title]).includes('undefined')) {
+                    let collectable = null
+                    for (const [key, value] of Object.entries(client.collectables))
+                        if (value.title === title) {
+                            collectable = value
+                            break
+                        }
+                        description += `[${title}](${
+                            client.channels.cache.get(collectable.channel).url
+                        })\n`
+                    continue
+                }
+
+                description += `${title}:\n`;
+
+                // Iterate over each chapter under the current title
+                for (const chapter of Object.keys(clientSpells[rarity][title])) {
+                    description += `Chapter ${chapter}\n`;
+
+                    // Map each page under the current chapter to its URL and join them with a space
+                    const pages = `${clientSpells[rarity][title][chapter].map(page => {
+                        const article = searchArticles(client.collectables, title, chapter, page)
+                        const channel = client.channels.cache.get(article.channel)
+                        return `[${page}](${channel.url})`
+                    }).join('\n')}\n`
+
+                    description += pages;
+                }
+            }
+
+            spellIndex++; // Increment the article index
+        }
+        return description
+    }
+
     let clientItems = organizeCollectables(Object.keys(clientCollectables)
         .filter(key => userDb.articlesCollected.includes(key))
         .map(key => clientCollectables[key]));

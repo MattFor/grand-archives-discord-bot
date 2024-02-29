@@ -1,4 +1,4 @@
-**Learning Crystal Magic**
+# Learning Crystal Magic
 
 To learn Crystal Magic, one must first learn the language of crystals. Each crystal has its own "voice", a distinct vibrational signature. The sage must listen to these vibrations, learn to interpret them, and eventually, manipulate them.
 

@@ -1,4 +1,6 @@
-In the shadowed halls of the Grand Archives, thou hast uncovered a rare gift - the invocation known as **Ancestor's Guidance**. A potent conduit, it draws upon the collective wisdom of those who came before us, allowing their insight to imbue and illuminate your path.
+# Ancestor's Guidance
+
+A potent conduit, it draws upon the collective wisdom of those who came before us, allowing their insight to imbue and illuminate your path.
 
 To wield this ancient spell, thou must first seek a message of significant wisdom or inquiry - this shall act as the vessel for the ancient spirits' advice. Upon the chosen words, the spirits will weave their insight, allowing it to persist through the sands of time.
 

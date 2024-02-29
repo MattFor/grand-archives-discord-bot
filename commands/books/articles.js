@@ -97,6 +97,14 @@ export default {
         if (userDb.articlesCollected.length === 0 || message.member.roles.cache.has(ENTRANT))
             return message.channel.send({ content: 'Alas, your current grasp of knowledge does not suffice to wield such coveted scrolls.....' })
 
+        userDb.articlesCollected.forEach(async c => {
+            const channel = client.channels.cache.find(ch => ch.name === c)
+            if (!channel?.permissionsFor(message.member).serialize().ViewChannel)
+                channel.permissionOverwrites.create(message.author, {
+                    ViewChannel: true
+                })
+        })
+
         let clientArticles = organizeCollectables(Object.keys(client.collectables)
             .filter(key => userDb.articlesCollected.includes(key))
             .map(key => client.collectables[key]))

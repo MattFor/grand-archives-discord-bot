@@ -94,23 +94,45 @@ export default {
     async run(client, collectable, collectable_category) {
         const category = collectable_category === 'spell' ? 
             client.channels.cache.get(SPELLS) : 
-            client.channels.cache.get(ARTICLES);
+            client.channels.cache.get(ARTICLES)
 
         const channel = await category.children.create({
             name: collectable, 
             type: Discord.ChannelType.GuildText,
             topic: client.collectables[collectable].description
-        });
+        })
 
         setTimeout(async () => {
-            await setPermissions(channel);
+            const everyone = channel.guild.roles.everyone
+            await channel.permissionOverwrites.set([{
+                id: everyone.id,
+                deny: [
+                    Discord.PermissionFlagsBits.ViewChannel,
+                    Discord.PermissionFlagsBits.SendMessages
+                ]
+            }, {
+                id: NEOPHYTE,
+                deny: [
+                    Discord.PermissionFlagsBits.ViewChannel,
+                    Discord.PermissionFlagsBits.SendMessages
+                ]
+            }, {
+                id: WAXHEAD,
+                allow: [
+                    Discord.PermissionFlagsBits.ViewChannel
+                ],
+                deny: [
+                    Discord.PermissionFlagsBits.SendMessages
+                ]
+            }])
+
             client.collectables[collectable].channel = channel.id;
             fs.writeFileSync('./collectables.TXT', beautify(client.collectables, null, 2, 80))
 
             try {
-                await handleContent(channel, collectable, collectable_category);
+                await handleContent(channel, collectable, collectable_category)
             } catch (error) {
-                console.error(error);
+                console.error(error)
             }
         }, 2000);
     }

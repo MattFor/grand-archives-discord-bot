@@ -1,1 +1,3 @@
-The **Homing Crystal Soulmass** spell conjures a number of magical orbs, which hover around the caster. These orbs, made of condensed crystallized souls, automatically seek out and attack targets in proximity. The number of orbs is directly proportional to the user's Intelligence and skill in sorcery.
+# The Homing Crystal Soulmass 
+
+A spell that conjures a number of magical orbs, which hover around the caster. These orbs, made of condensed crystallized souls, automatically seek out and attack targets in proximity. The number of orbs is directly proportional to the user's Intelligence and skill in sorcery.

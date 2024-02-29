@@ -112,15 +112,18 @@ export default {
             const timeSpentInVC = leaveTimestamp - joinTimestamp;
     
             // Convert milliseconds to minutes and round to 2 decimal places
-            const timeSpentInVCMinutes = parseFloat((timeSpentInVC / 1000 / 60 / 2.5).toFixed(2));
+            const timeSpentInVCMinutes = parseFloat((timeSpentInVC / 1000 / 60) * (0.75 + Math.random() * 0.5)).toFixed(4);
     
             // Remove the user's state as they're not in a VC anymore
-            client.voiceStamps.delete(`${guildID}-${userID}`);
-    
+            client.voiceStamps.delete(`${guildID}-${userID}`)
+
+            if (!timeSpentInVCMinutes)
+                return info(`User ${client.users.cache.get(userID).username} left channel. ${timeSpentInVCMinutes}`)
+
             // Now you can call your function to add this time to user's total experience
             var userDb = await getUser(userID)
 
-            userDb.voiceChatTime += timeSpentInVCMinutes
+            userDb.voiceChatTime += Number(timeSpentInVCMinutes)
             userDb.markModified('voiceChatTime')
             await userDb.save()
     
@@ -135,7 +138,7 @@ export default {
             const timeSpentInOldVC = switchTimestamp - oldJoinTimestamp;
     
             // Convert milliseconds to minutes and round to 2 decimal places
-            const timeSpentInOldVCMinutes = parseFloat((timeSpentInOldVC / 1000 / 60 / 2.5).toFixed(2));
+            const timeSpentInOldVCMinutes = parseFloat((timeSpentInOldVC / 1000 / 60) * (0.75 + Math.random() * 0.5)).toFixed(4);
     
             // Update the user's join timestamp to their switch timestamp for the new channel
             client.voiceStamps.set(`${guildID}-${userID}`, switchTimestamp);
@@ -143,11 +146,14 @@ export default {
             // Now you can call your function to add this time to user's total experience
             var userDb = await getUser(userID)
 
-            userDb.voiceChatTime += timeSpentInOldVCMinutes
+            if (!timeSpentInOldVCMinutes)
+                return info(`User ${client.users.cache.get(userID).username} changed channel. ${timeSpentInOldVCMinutes}`)
+
+            userDb.voiceChatTime += Number(timeSpentInOldVCMinutes)
             userDb.markModified('voiceChatTime')
             await userDb.save()
     
-            info(`User ${client.users.cache.get(userID).username} left channel. ${timeSpentInVCMinutes}`)
+            info(`User ${client.users.cache.get(userID).username} changed channel. ${timeSpentInOldVCMinutes}`)
         }
     }
 }

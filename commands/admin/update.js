@@ -89,19 +89,18 @@ import {
 
 export default {
     name: 'update',
-    async run(client, channel) {
-        await setPermissions(channel);
+    async run(client, channel, collectable, collectable_category) {
+        await setPermissions(channel, false)
 
-        const toDelete = await channel.messages.fetch({ limit: 10 });
-        toDelete.forEach(async m => await m.delete());
-        info(`Updating ${channel.name}`);
+        info(`Updating ${channel.name}`)
+        await channel.bulkDelete(100)
 
         setTimeout(async () => {
             try {
-                await handleContent(channel, collectable, collectable_category);
+                await handleContent(channel, collectable, collectable_category)
             } catch (error) {
-                console.error(error);
+                console.error(error)
             }
-        }, 5000);
+        }, 5000)
     }
 }

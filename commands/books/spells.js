@@ -97,6 +97,14 @@ export default {
         if (userDb.spellsCollected.length === 0 || message.member.roles.cache.has(ENTRANT))
             return message.channel.send({ content: '..thou art not wise enough to practice arcane arts yet....' })
 
+        userDb.spellsCollected.forEach(async c => {
+            const channel = client.channels.cache.find(ch => ch.name === c)
+            if (!channel?.permissionsFor(message.member).serialize().ViewChannel)
+                channel.permissionOverwrites.create(message.author, {
+                    ViewChannel: true
+                })
+        })
+
         let clientSpells = organizeCollectables(Object.keys(client.collectables)
             .filter(key => userDb.spellsCollected.includes(key))
             .map(key => client.collectables[key]))
@@ -145,7 +153,7 @@ export default {
 
         var embed = {
             color: GHOST_BLUE,
-            title: `${message.member?.nickname??message.author.username}'s spellbook`,
+            title: `${message.member?.nickname??message.author.username}'s grimoire`,
             description: description
         }
 
