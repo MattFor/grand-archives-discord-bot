@@ -1,7 +1,5 @@
 'use strict'
 
-import Bot from '../../main.js'
-import Discord from 'discord.js'
 
 import {
     // Global things related strictly to the server
@@ -89,7 +87,7 @@ import {
 
 export default {
     name: 'update',
-    async run(client, channel, collectable, collectable_category) {
+    async run(bot, channel, collectable, collectable_category) {
         await setPermissions(channel, false)
 
         info(`Updating ${channel.name}`)

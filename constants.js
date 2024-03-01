@@ -2,7 +2,7 @@
 
 import fs from "fs";
 import chalk from "chalk";
-import Discord from "discord.js";
+import discord from "discord.js";
 import timeStamp from "time-stamp";
 import getUser from "./src/Database/Main.js";
 
@@ -163,7 +163,7 @@ const levelUpTexts = {
         `Mark this day, as USERNAME, our diligent Acolyte, strides forward to claim the title of NEWRANK.`,
         `Praise be to USERNAME, for their time as an Acolyte has culminated in their ascension to the rank of NEWRANK.`,
         `From the humble beginnings of an Acolyte, USERNAME has risen to the prestigious role of a NEWRANK.`,
-        `We celebrate USERNAME"s transition from Acolyte, as they embrace their new identity as a NEWRANK.`
+        `We celebrate USERNAME's transition from Acolyte, as they embrace their new identity as a NEWRANK.`
     ],
     "Scholar": [
         `From the realm of Scholars, USERNAME has emerged, now bearing the distinguished title of NEWRANK.`,
@@ -190,8 +190,8 @@ const levelUpTexts = {
         `Praise the spirits, for our fellow Lorekeeper, USERNAME, now dons the honorable mantle of a NEWRANK.`,
         `From Lorekeeper to NEWRANK, we recognize the grand journey of USERNAME in their pursuit of wisdom.`,
         `With steadfast dedication, USERNAME transitions from Lorekeeper to the esteemed rank of NEWRANK.`,
-        `Bear witness to USERNAME"s ascension, as they transition from their role as Lorekeeper to the high honor of NEWRANK.`,
-        `In the annals of our records, USERNAME"s name shines bright, as they transform from Lorekeeper to NEWRANK.`
+        `Bear witness to USERNAME's ascension, as they transition from their role as Lorekeeper to the high honor of NEWRANK.`,
+        `In the annals of our records, USERNAME's name shines bright, as they transform from Lorekeeper to NEWRANK.`
     ],
     "Grand Librarian": [
         `By the spirits" guidance, USERNAME, our revered Grand Librarian, has ascended to the rank of NEWRANK.`,
@@ -504,7 +504,7 @@ async function setMemberNickname(member, rank) {
         nickname = nickname.replace("{rank}", rank);
         nickname = nickname.replace("{adj}", adj);
 
-        // Limit the length to fit Discord"s nickname length limit (32 characters)
+        // Limit the length to fit discord's nickname length limit (32 characters)
         if (nickname.length > 32)
             nickname = nickname.substring(0, 29) + "..."
 
@@ -596,7 +596,7 @@ function pickArticles(articlesObj, count, userArticlesArrays) {
     // Convert the articles object into an array of articles
     let articles = Object.keys(articlesObj).map(key => articlesObj[key]);
 
-    // Merge all user"s articles into a single array
+    // Merge all user's articles into a single array
     const allUserArticles = [].concat(...userArticlesArrays);
 
     // Get a count of how many users already have each article
@@ -759,7 +759,7 @@ function detectRoleInString(str) {
 
 /**
  * 
- * @param {Discord.Channel} channel 
+ * @param {discord.Channel} channel 
  */
 async function setPermissions(channel, denyNeophyte) {
     const neophyte = channel.guild.roles.cache.get(NEOPHYTE)

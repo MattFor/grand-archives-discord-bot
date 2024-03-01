@@ -1,8 +1,8 @@
 "use strict";
 
 import discord from "discord.js";
-import GrandArchivist from "./src/GrandArchivist";
-import ConsoleInteractor from "./src/ConsoleInteractor";
+import GrandArchivist from "./src/GrandArchivist.js";
+import ConsoleInteractor from "./src/ConsoleInteractor.js";
 
 // Catch errors.
 process.on("uncaughtException", e => console.log(e));
@@ -37,4 +37,4 @@ const bot = new GrandArchivist({
     makeCache: discord.Options.cacheEverything()
 });
 
-new ConsoleInteractor();
+new ConsoleInteractor(bot);

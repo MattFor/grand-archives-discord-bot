@@ -1,18 +1,18 @@
 "use strict";
 
-import Bot from "../main.js";
-import Discord from "discord.js";
+import discord from "discord.js";
+import GrandArchivist from "../src/GrandArchivist.js";
 
 export default {
     /**
-     * @param {Bot} client 
-     * @param {Discord.PartialChannelData | Discord.PartialMessage | Discord.PartialUser} packet
+     * @param {GrandArchivist} bot 
+     * @param {discord.PartialChannelData | discord.PartialMessage | discord.PartialUser} packet
      */
-    async run(client, packet) {
+    async run(bot, packet) {
         if (!["MESSAGE_REACTION_ADD", "MESSAGE_REACTION_REMOVE"].includes(packet.t)) 
             return;
 
-        const channel = client.channels.cache.get(packet.d.channel);
+        const channel = bot.channels.cache.get(packet.d.channel);
 
         if (!channel || channel.messages.cache.has(packet.d.message_id)) 
             return;
@@ -21,16 +21,16 @@ export default {
             const emoji = packet.d.emoji.id ? `${packet.d.emoji.name}:${packet.d.emoji.id}` : packet.d.emoji.name;
             const reaction = message.reactions.cache.get(emoji);
 
-            const user = client.users.cache.get(packet.d.user_id);
+            const user = bot.users.cache.get(packet.d.user_id);
 
             if (reaction) 
                 reaction.users.cache.set(packet.d.user_id, user);
 
             switch (packet.t) {
                 case "MESSAGE_REACTION_ADD":
-                    return client.emit("messageReactionAdd", reaction, user);
+                    return bot.emit("messageReactionAdd", reaction, user);
                 case "MESSAGE_REACTION_REMOVE":
-                    return client.emit("messageReactionRemove", reaction, user);
+                    return bot.emit("messageReactionRemove", reaction, user);
             }
         })
     }

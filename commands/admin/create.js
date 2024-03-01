@@ -1,8 +1,7 @@
 'use strict'
 
 import fs from 'fs'
-import Bot from '../../main.js'
-import Discord from 'discord.js'
+import discord from 'discord.js'
 import beautify from 'json-beautify'
 
 import {
@@ -91,15 +90,15 @@ import {
 
 export default {
     name: 'create',
-    async run(client, collectable, collectable_category) {
+    async run(bot, collectable, collectable_category) {
         const category = collectable_category === 'spell' ? 
-            client.channels.cache.get(SPELLS) : 
-            client.channels.cache.get(ARTICLES)
+            bot.channels.cache.get(SPELLS) : 
+            bot.channels.cache.get(ARTICLES)
 
         const channel = await category.children.create({
             name: collectable, 
-            type: Discord.ChannelType.GuildText,
-            topic: client.collectables[collectable].description
+            type: discord.ChannelType.GuildText,
+            topic: bot.collectables[collectable].description
         })
 
         setTimeout(async () => {
@@ -107,27 +106,27 @@ export default {
             await channel.permissionOverwrites.set([{
                 id: everyone.id,
                 deny: [
-                    Discord.PermissionFlagsBits.ViewChannel,
-                    Discord.PermissionFlagsBits.SendMessages
+                    discord.PermissionFlagsBits.ViewChannel,
+                    discord.PermissionFlagsBits.SendMessages
                 ]
             }, {
                 id: NEOPHYTE,
                 deny: [
-                    Discord.PermissionFlagsBits.ViewChannel,
-                    Discord.PermissionFlagsBits.SendMessages
+                    discord.PermissionFlagsBits.ViewChannel,
+                    discord.PermissionFlagsBits.SendMessages
                 ]
             }, {
                 id: WAXHEAD,
                 allow: [
-                    Discord.PermissionFlagsBits.ViewChannel
+                    discord.PermissionFlagsBits.ViewChannel
                 ],
                 deny: [
-                    Discord.PermissionFlagsBits.SendMessages
+                    discord.PermissionFlagsBits.SendMessages
                 ]
             }])
 
-            client.collectables[collectable].channel = channel.id;
-            fs.writeFileSync('./assets/collectables.json', beautify(client.collectables, null, 2, 80))
+            bot.collectables[collectable].channel = channel.id;
+            fs.writeFileSync('./assets/collectables.json', beautify(bot.collectables, null, 2, 80))
 
             try {
                 await handleContent(channel, collectable, collectable_category)

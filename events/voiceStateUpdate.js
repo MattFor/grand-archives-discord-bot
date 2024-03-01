@@ -1,7 +1,7 @@
 "use strict";
 
 import discord from "discord.js";
-import GrandArchivist from "../src/GrandArchivist";
+import GrandArchivist from "../src/GrandArchivist.js";
 
 export default {
     /**

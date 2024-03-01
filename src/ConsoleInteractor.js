@@ -2,7 +2,7 @@
 
 import _ from "lodash";
 import rl from "readline";
-import GrandArchivist from "./GrandArchivist";
+import GrandArchivist from "./GrandArchivist.js";
 
 const articleLogEntries = [
     "The archives shudder as TITLE, a new chapter on PAGE, echoes through their depths.",
@@ -145,6 +145,7 @@ export default class ConsoleInteractor {
                     });
             }
         })
-        info("Created input loop.");
+        
+        bot.info("Created input loop.");
     }
 }

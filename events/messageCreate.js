@@ -1,7 +1,5 @@
 "use strict"
 
-import beautify from "json-beautify"
-
 import discord from "discord.js"
 
 import {
@@ -112,8 +110,6 @@ const checkStringForSynonyms = str => {
     return false;
 }
 
-import GrandArchivist from "../src/GrandArchivist.js";
-
 export default {
     /**
      * @param {GrandArchivist} bot 
@@ -166,7 +162,7 @@ export default {
                         if (response) return message.channel.send({ content: response });
                     
                         const description = generateDescription(bot.collectables, userDb, isSpell, bot);
-                        const title = `${disciple.nickname??disciple.user.username}"s ${isSpell ? "grimoire" : "reference booklet"}`;
+                        const title = `${disciple.nickname ?? disciple.user.username}'s ${isSpell ? "grimoire" : "reference booklet"}`;
                         const color = isSpell ? GHOST_BLUE : BOOK_CREAM;
                     
                         if (!isSpell) {

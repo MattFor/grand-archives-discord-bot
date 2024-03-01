@@ -1,91 +1,7 @@
-'use strict'
+"use strict";
 
-import Bot from '../../main.js'
-import Discord from 'discord.js'
-
-import {
-    // Global things related strictly to the server
-    TOKEN,
-    OWNER,
-    GUILD,
-    CHANNEL,
-
-    // Rarities
-    SPELL_RARITIES,
-    ARTICLE_RARITIES,
-
-    // Embed colors
-    GHOST_BLUE,
-    BOOK_CREAM,
-
-    // Special channel ids
-    LOGS_CHANNEL_ID,
-    WAXHEAD_CHANNEL_ID,
-    SPELLS_SPECIAL_CHANNEL_ID,
-    LABYRINTH_OF_KNOWLEDGE_ID,
-    ARTICLES_SPECIAL_CHANNEL_ID,
-
-    // Special category ids
-    SPELLS,
-    ARTICLES,
-    SAGE_ONLY_CATEGORY,
-
-    // Special message ids
-    WAXHEAD_MESSAGE_ID,
-
-    // Role ids
-    SAGE,
-    WAXHEAD,
-    GRAND_LIBRARIAN,
-    LOREKEEPER,
-    MAGUS,
-    ARCHIVIST,
-    SCHOLAR,
-    ACOLYTE,
-    ENTRANT,
-    NEOPHYTE,
-
-    ghostWords,
-    roleMapping,
-    commandSynonyms,
-    serverRanksRanked,
-    entitiesToExecute,
-    spellIncantations,
-    commandsToExecute,
-
-    // Bot responses
-    responsesDeny,
-    sageResponses,
-    acceptQuestion,
-    responsesAccept,
-    rankChangeMessages,
-    duplicateResponses,
-    nicknameChangeLogs,
-    sageNoSpellResponses,
-    unknownSpellResponses,
-    sageNoArticleResponses,
-
-    // Global widely used functions
-    info,
-    getUser,
-    determineRank,
-    getMemberRank,
-    levelUpMessages,
-    getRankDescriptor,
-    getRandomResponse,
-    setMemberNickname,
-    calculateExperience,
-
-    // Rarely used functions
-    pickArticles,
-    handleContent,
-    searchArticles,
-    setPermissions,
-    detectRoleInString,
-    generateDescription,
-    organizeCollectables,
-    getRandomResponseAndCheckRoles
-} from '../../constants.js'
+import discord from "discord.js";
+import GrandArchivist from "../../src/GrandArchivist.js";
 
 const noReplyResponses = [
     "The spirits of the ancients need a beacon to guide you. Affix their wisdom to a specific point.",
@@ -98,12 +14,12 @@ const noReplyResponses = [
 ]
 
 export default {
-    name: 'ANCESTORS_GUIDANCE',
+    name: "ANCESTORS_GUIDANCE",
     /**
-     * @param {Bot} client 
-     * @param {Discord.Message} message
+     * @param {GrandArchivist} bot 
+     * @param {discord.Message} message
      */
-    async run(client, userDb, message) {
+    async run(bot, userDb, message) {
         if (!message.mentions.repliedUser)
             return message.reply({ content: noReplyResponses[Math.floor(Math.random() * noReplyResponses.length)] })
         

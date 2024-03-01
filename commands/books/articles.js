@@ -1,7 +1,6 @@
-'use strict'
+"use strict"
 
-import Bot from '../../main.js'
-import Discord from 'discord.js'
+import discord from "discord.js"
 
 import {
     // Global things related strictly to the server
@@ -85,31 +84,33 @@ import {
     generateDescription,
     organizeCollectables,
     getRandomResponseAndCheckRoles
-} from '../../constants.js'
+} from "../../constants.js"
+
+import GrandArchivist from "../../src/GrandArchivist.js";
 
 export default {
-    name: 'ARTICLES',
+    name: "ARTICLES",
     /**
-     * @param {Bot} client 
-     * @param {Discord.Message} message
+     * @param {GrandArchivist} bot 
+     * @param {discord.Message} message
      */
-    async run(client, userDb, message) {
+    async run(bot, userDb, message) {
         if (userDb.articlesCollected.length === 0 || message.member.roles.cache.has(ENTRANT))
-            return message.channel.send({ content: 'Alas, your current grasp of knowledge does not suffice to wield such coveted scrolls.....' })
+            return message.channel.send({ content: "Alas, your current grasp of knowledge does not suffice to wield such coveted scrolls....." })
 
         userDb.articlesCollected.forEach(async c => {
-            const channel = client.channels.cache.find(ch => ch.name === c)
+            const channel = bot.channels.cache.find(ch => ch.name === c)
             if (!channel?.permissionsFor(message.member).serialize().ViewChannel)
                 channel.permissionOverwrites.create(message.author, {
                     ViewChannel: true
                 })
         })
 
-        let clientArticles = organizeCollectables(Object.keys(client.collectables)
+        let clientArticles = organizeCollectables(Object.keys(bot.collectables)
             .filter(key => userDb.articlesCollected.includes(key))
-            .map(key => client.collectables[key]))
+            .map(key => bot.collectables[key]))
 
-        let description = '';
+        let description = "";
         let articleIndex = 1; // Start index from 1
     
         // Iterate over each rarity of articles
@@ -126,11 +127,11 @@ export default {
     
                     // Map each page under the current chapter to its URL and join them with a space
                     const pages = `${clientArticles[rarity][title][chapter].map(page => {
-                        const article = searchArticles(client.collectables, title, chapter, page);
-                        const url = client.channels.cache.get(article.channel).url;
+                        const article = searchArticles(bot.collectables, title, chapter, page);
+                        const url = bot.channels.cache.get(article.channel).url;
     
                         return `[${page}](${url})`;
-                    }).join(' ')}\n`;
+                    }).join(" ")}\n`;
     
                     description += pages;
                 }
@@ -142,11 +143,11 @@ export default {
         let numScrolls = userDb.articlesCollected.length
         let responseScrolls = (numScrolls <= 3 ? "A few ancient scrolls in your possession, RANK. Each is a step towards wisdom."
             : numScrolls <= 8 ? "Quite a collection of scrolls you have there, RANK. You are truly devoted to understanding the ancient ways."
-            : "Astounding! Only a true RANK can posses such an impressive collection of ethereal scrolls.").replaceAll('RANK', getRankDescriptor(getMemberRank(message.member)))
+            : "Astounding! Only a true RANK can posses such an impressive collection of ethereal scrolls.").replaceAll("RANK", getRankDescriptor(getMemberRank(message.member)))
 
         let embed = {
             color: BOOK_CREAM,
-            title: `${message.member?.nickname??message.author.username}'s reference booklet`,
+            title: `${message.member?.nickname ?? message.author.username}'s reference booklet`,
             description: description
         }
 

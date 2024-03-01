@@ -1,6 +1,6 @@
 "use strict";
 
-import {
+import constants, {
     // Global things related strictly to the server
     TOKEN,
     OWNER,
@@ -87,7 +87,6 @@ import {
 import fs from "fs";
 import mongoose from "mongoose";
 import discord from "discord.js";
-import constants from "../constants";
 import beautify from "json-beautify";
 
 /**
@@ -107,7 +106,7 @@ export default class GrandArchivist extends discord.Client {
          * @param {Object}
          * 
          * @param {fs} fs - The file system module.
-         * @param {discord} discord - The Discord.js library.
+         * @param {discord} discord - The discord.js library.
          * @param {mongoose} mongoose - The Mongoose library.
          * @param {beautify} beautify - The json-beautify library.
          */
@@ -198,7 +197,7 @@ export default class GrandArchivist extends discord.Client {
 
     async _loadInteractives() {
         fs.readdirSync("./events").forEach(async file => {
-            const event = await import (`./events/${file}`);
+            const event = await import (`../events/${file}`);
             const eventName = file.split(".")[0];
 
             this.info(`Loaded event ${eventName}.`);
@@ -214,7 +213,7 @@ export default class GrandArchivist extends discord.Client {
             this.info(`Caching ${dir}`);
     
             for (const file of fs.readdirSync(`./commands/${dir}`)) {
-                const command = await import (`./commands/${dir}/${file}`);
+                const command = await import(`../commands/${dir}/${file}`);
                 this.spells.set(command.default.name, command.default);
                 this.info(`Loaded command ${command.default.name}.`);
             }
@@ -365,7 +364,7 @@ export default class GrandArchivist extends discord.Client {
             const guild = this.guilds.cache.get(GUILD)
             guild.members.fetch().then(members => {
                 members.forEach(async member => {
-                    if (member.user.this)
+                    if (member.user.bot)
                         return;
         
                     const userDb = await getUser(member.user.id);

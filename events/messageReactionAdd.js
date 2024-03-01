@@ -1,7 +1,6 @@
-'use strict'
+"use strict";
 
-import Bot from '../main.js'
-import Discord from 'discord.js'
+import discord from "discord.js";
 
 import {
     // Global things related strictly to the server
@@ -85,55 +84,57 @@ import {
     generateDescription,
     organizeCollectables,
     getRandomResponseAndCheckRoles
-} from '../constants.js'
+} from "../constants.js";
 
+import GrandArchivist from "../src/GrandArchivist.js";
 
 export default {
     /**
      * Handle adding a reaction
-     * @param {Bot} client 
-     * @param {Discord.MessageReaction} reaction 
-     * @param {Discord.User} user 
+     * @param {GrandArchivist} bot 
+     * @param {discord.MessageReaction} reaction 
+     * @param {discord.User} user 
      */
-    async run(client, reaction, user) {
-        if (user.id === client.user.id)
-            return
+    async run(bot, reaction, user) {
+        if (user.id === bot.user.id)
+            return;
 
-        const message = reaction.message
-        const member = await message.guild.members.fetch(user.id)
+        const message = reaction.message;
+        const member = await message.guild.members.fetch(user.id);
 
         // Remove the user's reaction.
-        if (client.emojiRemoveChannel(message.channel))
-            message.reactions.cache.find(r => r.emoji.name === reaction.emoji.name).users.remove(user.id)
+        if (bot.emojiRemoveChannel(message.channel))
+            message.reactions.cache.find(r => r.emoji.name === reaction.emoji.name).users.remove(user.id);
 
         if (message.channel?.parent?.id === LABYRINTH_OF_KNOWLEDGE_ID &&
             message.id === (await message.channel.fetchStarterMessage())?.id) {
-            let userDb = await getUser(user.id)
+            let userDb = await getUser(user.id);
 
-            userDb.reputation += 1
-            userDb.markModified('reputation')
-            await userDb.save()
+            userDb.reputation += 1;
+            userDb.markModified("reputation");
+            await userDb.save();
         }
 
         // Wax chamber channel
         if (reaction.message.channel.id === WAXHEAD_CHANNEL_ID) {
-            if (message.id !== WAXHEAD_MESSAGE_ID || 
-                message.guild.members.cache.get(user.id).roles.cache.has(WAXHEAD))
-                return
+            if (
+                message.id !== WAXHEAD_MESSAGE_ID || 
+                message.guild.members.cache.get(user.id).roles.cache.has(WAXHEAD)
+            ) return;
 
-            const member = message.guild.members.resolve(user)
+            const member = message.guild.members.resolve(user);
 
             switch(reaction.emoji.name) {
-                case '✅':
+                case "✅":
                     // Add the waxhead role.
-                    member.roles.add(message.guild.roles.cache.get(WAXHEAD))
+                    member.roles.add(message.guild.roles.cache.get(WAXHEAD));
 
                     // Between 15 and 45 minutes.
                     const opportunityTimeMin = (Math.floor(Math.random() * (45 - 15 + 1)) + 15) * 60 * 1000
 
                     let chosenUserDb = await getUser(user.id)
                     chosenUserDb.experience += (Math.floor(Math.random() * (30 - 10 + 1)) + 10) * (Math.random() * (Number(`${Date.now()}`.slice(-1)) + 1)) + Math.random()
-                    chosenUserDb.markModified('experience')
+                    chosenUserDb.markModified("experience")
                     await chosenUserDb.save()
 
                     // Set a timeout to remove the user's role in quadruple the time it took him to find it.
@@ -144,13 +145,13 @@ export default {
                             member.roles.remove(message.guild.roles.cache.get(NEOPHYTE)).catch(null)
                         } catch {}
                         // Remove the user from the collection.
-                        client.activeUsers.delete(user.id)
+                        bot.activeUsers.delete(user.id)
                     }, opportunityTimeMin * 4)
 
                     return message.channel.send({ content: `You may now read the foulness of the sacred texts, **${user}**. Farewell on your journey...` }).then(m => 
                         setTimeout(() => m.delete(), 2 * 60 * 1000).catch(null)
                     )
-                case '❌':
+                case "❌":
                     await message.channel.send({ content: `Maybe you are right ${user}... One shudders to imagine the horrors of having their head scolded by hot wax...` }).then(m => 
                         setTimeout(() => m.delete(), 30 * 1000).catch(null)
                     )
@@ -163,21 +164,21 @@ export default {
                             member.roles.remove(message.guild.roles.cache.get(NEOPHYTE)).catch(null)
                         } catch {}
                         // Remove the user from the collection.
-                        client.activeUsers.delete(user.id)
+                        bot.activeUsers.delete(user.id)
                     }, 60 * 1000)
                 default: 
                     return
             }
         // Article channel
         } else if ([ARTICLES, SPELLS].includes(reaction.message.channel?.parent.id)) {
-            if (!['✅', '❌'].includes(reaction.emoji.name))
-                return
+            if (!["✅", "❌"].includes(reaction.emoji.name))
+                return;
 
-            const hasWax = member.roles.cache.has(WAXHEAD)
-            if (hasWax && !!client.activeUsers[user.id])
-                client.activeUsers[user.id][0]++
+            const hasWax = member.roles.cache.has(WAXHEAD);
+            if (hasWax) // && !!bot.activeUsers[user.id])
+                return; // bot.activeUsers[user.id][0]++
 
-            if (!!client.activeUsers[user.id] && client.activeUsers[user.id][0] >= client.activeUsers[user.id][1] && hasWax)
+            if (!!bot.activeUsers[user.id] && bot.activeUsers[user.id][0] >= bot.activeUsers[user.id][1] && hasWax)
                 return setTimeout(() => {
                     // Remove the waxhead role.
                     member.roles.remove(message.guild.roles.cache.get(WAXHEAD)).catch(null)
@@ -185,72 +186,73 @@ export default {
                         member.roles.remove(message.guild.roles.cache.get(NEOPHYTE)).catch(null)
                     } catch {}
                     // Remove the user from the collection.
-                    client.activeUsers.delete(user.id)
+                    bot.activeUsers.delete(user.id)
                 }, 10 * 1000)
 
             let userDb = await getUser(user.id)
 
             const collectableClass = reaction.message.channel?.parent.id === ARTICLES ? 
-                'article' : 'spell'
+                "article" : "spell"
             
-            const isCollectable = Object.keys(client.collectables).includes(message.channel.name)
+            const isCollectable = Object.keys(bot.collectables).includes(message.channel.name)
             if (!isCollectable)
                 return
 
-            const collectable = client.collectables[message.channel.name]
+            const collectable = bot.collectables[message.channel.name]
 
             if (userDb.collectablesDenied.includes(message.channel.name))
                 return //TODO
 
             userDb.experience += (Math.floor(Math.random() * (30 - 10 + 1)) + 10) * collectable.rarity
-            userDb.markModified('experience')
+            userDb.markModified("experience")
 
-            const typeToSave = collectableClass === 'spell' ?
-            'spellsCollected' : 'articlesCollected'
+            const typeToSave = collectableClass === "spell" ?
+            "spellsCollected" : "articlesCollected"
 
             if (userDb[typeToSave].includes(message.channel.name)) {
                 await userDb.save()
                 const response = getRandomResponse(duplicateResponses[collectableClass])
-                return await message.channel.send({ content: response.replaceAll('USER', user).replaceAll('RANK', getRankDescriptor(getMemberRank(member), response.startsWith('RANK'))) })
+                return await message.channel.send({ content: response.replaceAll("USER", user).replaceAll("RANK", getRankDescriptor(getMemberRank(member), response.startsWith("RANK"))) })
                 .then(m => setTimeout(() => m.delete(), 60 * 1000))
             }
 
             if (collectable.acquirable) {
                 userDb.sorceriesCollected.push(message.channel.name.replace(/-/g, "_").toUpperCase())
-                userDb.markModified('sorceriesCollected')
+                userDb.markModified("sorceriesCollected")
             }
 
             userDb.experience += (Math.floor(Math.random() * (30 - 10 + 1)) + 10) * (Math.random() * (Number(`${Date.now()}`.slice(-1)) + 1)) + Math.random()
-            userDb.markModified('experience')
+            userDb.markModified("experience")
 
             switch(reaction.emoji.name) {
-                case '✅': {
+                case "✅": {
                     const response = getRandomResponse(responsesAccept[collectableClass])
                     userDb[typeToSave].push(message.channel.name)
                     userDb.markModified(typeToSave)
-                    info(`${user.tag} has gained ${collectableClass} ${message.channel.name}`)
+                    bot.info(`${user.tag} has gained ${collectableClass} ${message.channel.name}`)
                     message.channel.permissionOverwrites.create(user, {
                         ViewChannel: true
                     }).catch(null)
-                    await message.channel.send({ content: response.replaceAll('USER', user).replaceAll('RANK', getRankDescriptor(getMemberRank(member), response.startsWith('RANK'))) })
+                    await message.channel.send({ content: response.replaceAll("USER", user).replaceAll("RANK", getRankDescriptor(getMemberRank(member), response.startsWith("RANK"))) })
                         .then(m => setTimeout(() => m.delete(), 2 * 60 * 1000)).catch(null)
                 } break
-                case '❌': {
+                case "❌": {
                     const response = getRandomResponse(responsesDeny)
                     userDb.collectablesDenied.push(message.channel.name)
-                    userDb.markModified('collectablesDenied')
+                    userDb.markModified("collectablesDenied")
                     message.channel.permissionOverwrites.create(user, {
                         ViewChannel: true
                     }).catch(null)
-                    await message.channel.send({ content: response.replaceAll('USER', user).replaceAll('RANK', getRankDescriptor(getMemberRank(member), response.startsWith('RANK'))) })
-                        .then(m => setTimeout(() => m.delete(), 60 * 1000))
-                    info(`${user.tag} has declined ${collectableClass} ${message.channel.name}`)
-                } break
+                    await message.channel.send({ content: response.replaceAll("USER", user).replaceAll("RANK", getRankDescriptor(getMemberRank(member), response.startsWith("RANK"))) })
+                        .then(m => setTimeout(() => m.delete(), 60 * 1000));
+                    bot.info(`${user.tag} has declined ${collectableClass} ${message.channel.name}`);
+                } break;
+
                 default:
-                    return
+                    return;
             }
 
-            await userDb.save()
+            await userDb.save();
         }
     }
 }
