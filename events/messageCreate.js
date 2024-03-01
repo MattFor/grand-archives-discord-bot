@@ -145,7 +145,7 @@ export default {
                 if (lowerCaseMessage.includes("name") || lowerCaseMessage.includes("title")) {
                     let response = getRandomResponse(nicknameChangeLogs);
                     await setMemberNickname(disciple, disciple.roles.cache.first().name);
-                    response = response.replaceAll("USER", `**${disciple.user.username}**`).replaceAll("NICKNAME", `**${disciple.nickname}**`);
+                    response = response.replaceAll("USER", `**${disciple}**`).replaceAll("NICKNAME", `**${disciple.nickname ?? disciple.user.username}**`);
                     bot.channels.cache.get(LOGS_CHANNEL_ID).send({ content: response }); 
                 }
 
@@ -277,7 +277,7 @@ export default {
         // If no command was found, default to "ARTICLES"
         commandName = customIncantation ?? commandName ?? null;
 
-        if (!commandName || !bot._spells.available.includes(commandName))
+        if (!commandName || !bot.spellData.available.includes(commandName))
             return;
 
         const command = bot.spells.get(commandName);

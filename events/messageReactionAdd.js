@@ -103,7 +103,7 @@ export default {
         const member = await message.guild.members.fetch(user.id);
 
         // Remove the user's reaction.
-        if (bot.emojiRemoveChannel(message.channel))
+        if (bot.emojiRemovableChannel(message.channel))
             message.reactions.cache.find(r => r.emoji.name === reaction.emoji.name).users.remove(user.id);
 
         if (message.channel?.parent?.id === LABYRINTH_OF_KNOWLEDGE_ID &&
@@ -175,30 +175,30 @@ export default {
                 return;
 
             const hasWax = member.roles.cache.has(WAXHEAD);
-            if (hasWax) // && !!bot.activeUsers[user.id])
-                return; // bot.activeUsers[user.id][0]++
+            // if (hasWax) // && !!bot.activeUsers[user.id])
+            //     return; // bot.activeUsers[user.id][0]++
 
-            if (!!bot.activeUsers[user.id] && bot.activeUsers[user.id][0] >= bot.activeUsers[user.id][1] && hasWax)
-                return setTimeout(() => {
-                    // Remove the waxhead role.
-                    member.roles.remove(message.guild.roles.cache.get(WAXHEAD)).catch(null)
-                    try {
-                        member.roles.remove(message.guild.roles.cache.get(NEOPHYTE)).catch(null)
-                    } catch {}
-                    // Remove the user from the collection.
-                    bot.activeUsers.delete(user.id)
-                }, 10 * 1000)
+            // if (!!bot.activeUsers[user.id] && bot.activeUsers[user.id][0] >= bot.activeUsers[user.id][1] && hasWax)
+            //     return setTimeout(() => {
+            //         // Remove the waxhead role.
+            //         member.roles.remove(message.guild.roles.cache.get(WAXHEAD)).catch(null)
+            //         try {
+            //             member.roles.remove(message.guild.roles.cache.get(NEOPHYTE)).catch(null)
+            //         } catch {}
+            //         // Remove the user from the collection.
+            //         bot.activeUsers.delete(user.id)
+            //     }, 10 * 1000)
 
-            let userDb = await getUser(user.id)
+            let userDb = await getUser(user.id);
 
             const collectableClass = reaction.message.channel?.parent.id === ARTICLES ? 
-                "article" : "spell"
+                "article" : "spell";
             
             const isCollectable = Object.keys(bot.collectables).includes(message.channel.name)
             if (!isCollectable)
-                return
+                return;
 
-            const collectable = bot.collectables[message.channel.name]
+            const collectable = bot.collectables[message.channel.name];
 
             if (userDb.collectablesDenied.includes(message.channel.name))
                 return //TODO
@@ -215,6 +215,9 @@ export default {
                 return await message.channel.send({ content: response.replaceAll("USER", user).replaceAll("RANK", getRankDescriptor(getMemberRank(member), response.startsWith("RANK"))) })
                 .then(m => setTimeout(() => m.delete(), 60 * 1000))
             }
+
+            if (hasWax) // && !!bot.activeUsers[user.id])
+                return; // bot.activeUsers[user.id][0]++
 
             if (collectable.acquirable) {
                 userDb.sorceriesCollected.push(message.channel.name.replace(/-/g, "_").toUpperCase())
