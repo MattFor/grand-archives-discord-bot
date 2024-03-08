@@ -225,6 +225,8 @@ const nicknameChangeLogs = [
 ]
 
 const commandsToExecute = [
+    "hand out",
+    "hand over",
     "can i see", 
     "may i see", 
     "show me", 

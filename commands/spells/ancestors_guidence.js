@@ -20,7 +20,7 @@ export default {
      * @param {discord.Message} message
      */
     async run(bot, userDb, message) {
-        if (!message.mentions.repliedUser)
+        if (!message.mentions.repliedUser && (!message.content.startsWith("~") || message.content.toLowerCase().includes("nullified!")))
             return message.reply({ content: noReplyResponses[Math.floor(Math.random() * noReplyResponses.length)] })
         
         const repliedTo = await message.channel.messages.fetch(message.reference.messageId)

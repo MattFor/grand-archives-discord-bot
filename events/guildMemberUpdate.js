@@ -31,11 +31,12 @@ export default {
             )
         )
 
+        // Member gains new rank.
         setTimeout(async () => {
             const rank = newMember.roles.cache.first();
             let response = bot.constants.getRandomResponse(bot.constants.nicknameChangeLogs);
             await bot.constants.setMemberNickname(newMember, rank.name);
-            response = response.replaceAll("USER", `**${newMember.user.username}**`).replaceAll("NICKNAME", `**${newMember.nickname}**`);
+            response = response.replaceAll("USER", `**${newMember.displayName ?? newMember.user.username}**`).replaceAll("NICKNAME", `**${newMember}**`);
             bot.channels.cache.get(bot.constants.LOGS_CHANNEL_ID).send({ content: response }); 
         }, 3500);
     }

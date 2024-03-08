@@ -98,7 +98,7 @@ const commandSynonyms2 = {
     CHRONOS_GRASP: ["chronos", "grasp", "time hold", "temporal grip", "time control"],
     ECHO_OF_THE_ANCIENTS: ["echo", "ancients", "ancient echo", "ancient voice", "old whisper"],
     CHANNEL_GLIMPSE: ["channel", "glimpse", "quick look", "peek", "brief view"],
-    ANCESTORS_GUIDANCE: ["ancestor", "guidance", "lineage", "heritage", "wisdom", "elder insight", "past echo", "forebears", "kindred", "legacy"],
+    ANCESTORS_GUIDANCE: ["ancestor ", "guidance ", "lineage", "heritage", "wisdom ", "elder insight", "past echo", "forebears", "kindred", "legacy"],
     ALCHEMY: ["alchem", "transmut", "transform", "metamorphos", "morph", "fus", "synthesize", "meld", "amalgamat", "combin", "mutat", "transfigure", "modif", "remodel", "reform", "reshap", "alter", "revamp", "reconfigure", "rearrange", "remold", "rework"]
 };
 
@@ -129,10 +129,14 @@ export default {
         }
 
         // Create article / spell.
-        if (message.author.id === OWNER && !lowerCaseMessage.includes(".") && 
-            !(message.channel.type === discord.ChannelType.DM ||
-            message.channel.type === discord.ChannelType.GroupDM)) {
-            const disciple = message.mentions.members.first()
+        if (
+            message.author.id === OWNER && !lowerCaseMessage.includes(".") && 
+            !(
+                message.channel.type === discord.ChannelType.DM ||
+                message.channel.type === discord.ChannelType.GroupDM
+            )
+        ) {
+            const disciple = message.mentions.members.first();
             if (disciple && !message.mentions.repliedUser) {
                 let userDb = await getUser(disciple.user.id)
 
@@ -162,14 +166,14 @@ export default {
                         if (response) return message.channel.send({ content: response });
                     
                         const description = generateDescription(bot.collectables, userDb, isSpell, bot);
-                        const title = `${disciple.nickname ?? disciple.user.username}'s ${isSpell ? "grimoire" : "reference booklet"}`;
+                        const title = `${disciple.nickname ?? disciple.displayName ?? disciple.user.username}'s ${isSpell ? "grimoire" : "reference booklet"}`;
                         const color = isSpell ? GHOST_BLUE : BOOK_CREAM;
                     
                         if (!isSpell) {
                             let numScrolls = userDb.articlesCollected.length;
                             response = (numScrolls <= 3 ? "A few ancient scrolls in your possession, RANK. Each is a step towards wisdom."
                                 : numScrolls <= 8 ? "Quite a collection of scrolls you have there, RANK. You are truly devoted to understanding the ancient ways."
-                                : "Astounding! Only a true RANK can posses such an impressive collection of ethereal scrolls.").replaceAll("RANK", getRankDescriptor(getMemberRank(message.member)));
+                                : "Astounding! Only a true RANK can posses such an impressive collection of ethereal scrolls.").replaceAll("RANK", getRankDescriptor(getMemberRank(disciple)));
                         }
                     
                         let embed = {
@@ -195,7 +199,7 @@ export default {
                         const response = getRandomResponse(rankChangeMessages);
 
                         bot.channels.cache.get(LOGS_CHANNEL_ID).send({
-                            content: response.replaceAll("USER", disciple).replaceAll("RANK", getRankDescriptor(roleObj.name))
+                            content: response.replaceAll("USER", disciple.displayName ?? disciple.user.username).replaceAll("RANK", getRankDescriptor(roleObj.name))
                         });
 
                         info(`Given ${roleObj.name} to ${disciple.user.username}`);
@@ -273,18 +277,18 @@ export default {
                 .filter(cmd => !["SPELLS", "EXPERIENCE", "ARTICLES"].includes(cmd))  // Filter out the non-spell commands
                 .find(cmd => commandSynonyms[cmd].some(syn => lowerCaseMessage.includes(syn)));
         }
-        
-        // If no command was found, default to "ARTICLES"
-        commandName = customIncantation ?? commandName ?? null;
 
-        if (!commandName || !bot.spellData.available.includes(commandName))
+        // If no command was found, default to "ARTICLES"
+        commandName = commandName ?? customIncantation ?? null;
+
+        if (!commandName || (customIncantation && !bot.spellData.available.includes(commandName)))
             return;
 
         const command = bot.spells.get(commandName);
 
         let userDb = await getUser(message.author.id);
 
-        if (!["SPELLS", "EXPERIENCE", "ARTICLES"].includes(commandName) && !userDb.sorceriesCollected.includes(commandName))
+        if ((!message.content.startsWith("~") || message.content.toLowerCase().includes("nullified!")) && !["SPELLS", "EXPERIENCE", "ARTICLES"].includes(commandName) && !userDb.sorceriesCollected.includes(commandName))
             return message.reply({ content: getRandomResponse(unknownSpellResponses[commandName]) });
 
         const unavailableDMSpellResponses = [

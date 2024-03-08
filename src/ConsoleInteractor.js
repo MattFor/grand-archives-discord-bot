@@ -170,8 +170,10 @@ export default class ConsoleInteractor {
                     bot.user.setPresence({ status: "invisible" });
                     return;
                 case "on":
-                    bot.user.setActivity({ name: "The ever shifting bookshelves....", type: discord.ActivityType.Watching });
-                    bot.user.setPresence({ status: "online" });
+                    setInterval(() => {
+                        bot.user.setActivity({ name: "The ever shifting bookshelves....", type: discord.ActivityType.Watching });
+                        bot.user.setPresence({ status: "online" });
+                    }, 5000);
                     return
                 case "config":
                     if (bot.switch) 
