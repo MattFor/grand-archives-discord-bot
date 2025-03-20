@@ -178,7 +178,7 @@ export default class GrandArchivist extends discord.Client {
         // Log into the database
         mongoose.set("strictQuery", true);
         mongoose.connect(
-            "mongodb://127.0.0.1:27017/GrandArchives", 
+            "mongodb+srv://admin:Kz19fmg1lvtTnG9k@grandarchives.erm36eq.mongodb.net/GrandArchives", 
             { useNewUrlParser: true, useUnifiedTopology: true }
         ).then(() => this.info("Database connection established!")
         ).catch(() => this.info("Database connection severed!"));
