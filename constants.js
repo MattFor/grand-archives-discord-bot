@@ -6,6 +6,7 @@ import discord from "discord.js";
 import timeStamp from "time-stamp";
 import getUser from "./src/Database/Main.js";
 
+// Take it lol the application does not exist anymore
 const TOKEN = "Nzc2MDUxMzUwNjY0NTExNDg5.GsLN7z.qiT2KBu0TqpDAdRPOCNPUa37w9tYohy5RibDRw"
 
 const serverRanks = ["Entrant", "Acolyte", "Scholar", "Archivist", "Magus", "Lorekeeper", "Grand Librarian", "Sage", "Archmage of Crystalline Arts"];
